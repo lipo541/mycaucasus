@@ -1,0 +1,80 @@
+/* Reusable UI primitives (buttons, accessibility helpers, etc.) */
+
+/* Screen reader only utility */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Button primitives (glass / ghost style) */
+.btn {
+	position: relative;
+	background: transparent;
+	color: #fff;
+	border: 1px solid rgba(255,255,255,0.18);
+	padding: .62rem 1.1rem;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	backdrop-filter: blur(14px) saturate(160%);
+	font: inherit;
+	font-size: .9rem;
+	letter-spacing: .25px;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	gap: .45rem;
+	transition: background .3s, border-color .3s, box-shadow .35s, transform .25s, color .35s;
+}
+
+.btn::before,
+.btn::after { display: none; }
+
+.btn:hover {
+	background: rgba(255,255,255,0.12);
+	border-color: rgba(255,255,255,0.35);
+	box-shadow: 0 4px 14px -4px rgba(0,0,0,0.45);
+}
+
+.btn:active {
+	transform: translateY(1px);
+	box-shadow: 0 3px 12px -4px rgba(0,0,0,0.55);
+}
+
+.btn:focus-visible {
+	outline: 2px solid rgba(255,255,255,0.85);
+	outline-offset: 2px;
+}
+
+/* Primary variant (adds arrow indicator) */
+.btn-primary {
+	background: transparent;
+	border-color: rgba(255,255,255,0.32);
+	padding-right: 1.4rem;
+}
+
+.btn-primary:hover {
+	background: rgba(255,255,255,0.18);
+	text-shadow: 0 0 4px rgba(255,255,255,0.6);
+}
+
+.btn-primary::after {
+	content: '';
+	position: relative;
+	display: inline-block;
+	width: .55rem;
+	height: .55rem;
+	margin-left: .45rem;
+	border-right: 2px solid #fff;
+	border-top: 2px solid #fff;
+	transform: rotate(45deg) translateY(-1px);
+	transition: transform .35s;
+}
+
+.btn-primary:hover::after { transform: rotate(45deg) translate(2px,-1px); }
