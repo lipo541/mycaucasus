@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import '../auth/Login.css';
+import styles from './UserRegisterForm.module.css';
 import { supabase } from '../../lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { PhoneInput } from '../ui/PhoneInput';
@@ -38,23 +39,23 @@ export function UserRegisterForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="login register-form">
+  <form onSubmit={onSubmit} className={`login ${styles.form}`}>
       <h2>რეგისტრაცია — მომხმარებელი</h2>
-      <div className="register-row">
+  <div className={styles.row}>
         <div className="login__field">
-          <input className="login__input" placeholder="სახელი და გვარი (როგორც პირადში)" value={fullName} onChange={e=>setFullName(e.target.value)} />
+          <input className="login__input" placeholder="სახელი და გვარი" value={fullName} onChange={e=>setFullName(e.target.value)} />
         </div>
         <div className="login__field">
-          <input type="email" className="login__input" placeholder="ელფოსტა (ვერიფიკაციისთვის)" value={email} onChange={e=>setEmail(e.target.value)} />
-        </div>
-      </div>
-      <div className="register-row">
-        <PhoneInput value={phone} onChange={setPhone} placeholder="ტელეფონი (საკონტაქტო)" />
-        <div className="login__field">
-          <input type="password" className="login__input" placeholder="პაროლი (მინ. 6 სიმბოლო)" value={password} onChange={e=>setPassword(e.target.value)} />
+          <input type="email" className="login__input" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} />
         </div>
       </div>
-      <div className="register-row">
+  <div className={styles.row}>
+        <PhoneInput value={phone} onChange={setPhone} placeholder="ტელეფონი" />
+        <div className="login__field">
+          <input type="password" className="login__input" placeholder="პაროლი" value={password} onChange={e=>setPassword(e.target.value)} />
+        </div>
+      </div>
+  <div className={styles.row}>
         <div className="login__field">
           {(() => {
             const today = new Date();

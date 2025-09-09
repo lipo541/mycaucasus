@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import '../auth/Login.css';
+import styles from './PilotRegisterForm.module.css';
 import { supabase } from '../../lib/supabaseClient';
 import { PhoneInput } from '../ui/PhoneInput';
 import { Select } from '../ui/Select';
@@ -245,6 +246,7 @@ export function PilotRegisterForm() {
         options: {
           data: {
             role: 'pilot',
+            pilot_kind: 'tandem',
             status: 'pending',
             full_name,
             first_name: firstName,
@@ -286,11 +288,11 @@ export function PilotRegisterForm() {
   };
 
   return (
-    <form onSubmit={onSubmit} className="login register-form">
+  <form onSubmit={onSubmit} className={`login ${styles.form}`}>
   <div aria-hidden={showTerms} ref={contentRef}>
       <h2>რეგისტრაცია — პილოტი</h2>
       {/* Row 1: Names */}
-      <div className="register-row">
+  <div className={styles.row}>
         <div className="login__field">
           <input className="login__input" name="firstName" placeholder="სახელი" value={firstName} onChange={e=>setFirstName(e.target.value)} />
           <InfoTip success={firstName.length>0 && firstNameAsciiOk} error={firstName.length>0 && !firstNameAsciiOk} text={firstName.length>0 && !firstNameAsciiOk ? 'გამოიყენეთ მხოლოდ ინგლისური ასოები.' : 'შეიყვანეთ თქვენი სახელი (ინგლისურად).'} />
@@ -302,7 +304,7 @@ export function PilotRegisterForm() {
       </div>
 
       {/* Row 2: Contact */}
-      <div className="register-row">
+  <div className={styles.row}>
         <div className="login__field">
           <input type="email" className="login__input" name="email" placeholder="ელფოსტა" value={email} onChange={e=>setEmail(e.target.value)} />
           <InfoTip
@@ -315,7 +317,7 @@ export function PilotRegisterForm() {
       </div>
 
       {/* Row 3: Auth */}
-      <div className="register-row">
+  <div className={styles.row}>
         <div className="login__field">
           <input type="password" className="login__input" name="password" placeholder="პაროლი" value={password} onChange={e=>setPassword(e.target.value)} />
           <InfoTip success={passwordOk} error={showPasswordErr} text={(showPasswordErr ? passwordViolations(password).map((m,i)=>`• ${m}`).join('\n') : 'მინ. 8 სიმბოლო; პირველი ასო დიდი; მინ. 1 ციფრი. რეკომენდებულია ასოები, ციფრები და სიმბოლოები.')} />
@@ -327,7 +329,7 @@ export function PilotRegisterForm() {
       </div>
 
       {/* Row 4: Personal */}
-      <div className="register-row">
+  <div className={styles.row}>
   <div className="login__field">
           {(() => {
             const today = new Date();
@@ -370,7 +372,7 @@ export function PilotRegisterForm() {
       </div>
 
       {/* Experience (years) + Flights (side-by-side) */}
-      <div className="register-row">
+  <div className={styles.row}>
         <div className="login__field">
           <input
             type="text"

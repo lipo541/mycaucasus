@@ -1,4 +1,3 @@
-import '../register.css';
 import { PilotRegisterForm } from '../../../../components/registration/PilotRegisterForm';
 
 export default function RegisterPilotPage() {

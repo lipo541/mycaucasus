@@ -1,4 +1,3 @@
-import '../register.css';
 import { UserRegisterForm } from '../../../../components/registration/UserRegisterForm';
 
 export default function RegisterUserPage() {
