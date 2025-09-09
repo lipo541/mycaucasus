@@ -1,0 +1,26 @@
+/* Glassy select styled like the phone dropdown */
+.select2 { position: relative; width: 100%; }
+.select2__control.login__input { display: flex; align-items: center; justify-content: space-between; padding-right: 2.2rem; cursor: pointer; }
+.select2__value { pointer-events: none; }
+.select2__placeholder { color: rgba(255,255,255,0.7); }
+.select2__arrow { position: absolute; right: .8rem; width: .55rem; height: .55rem; border-right: 2px solid rgba(255,255,255,0.85); border-bottom: 2px solid rgba(255,255,255,0.85); transform: rotate(45deg); transition: transform .2s ease; }
+.select2[data-open="true"] .select2__arrow { transform: rotate(-135deg); }
+
+.select2__dropdown { position: absolute; left: 0; top: calc(100% - 3px); width: calc(100% + 1px); min-width: calc(100% + 1px); max-width: calc(100% + 1px); border: 1px solid rgba(255,255,255,0.18); border-top: 0; border-radius: 0 0 10px 10px; background: rgba(15,15,18,0.95); color: #fff; backdrop-filter: blur(14px) saturate(140%); box-shadow: 0 18px 40px -12px rgba(0,0,0,0.65); max-height: 260px; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; -ms-overflow-style: none; z-index: 30; }
+.select2__dropdown::-webkit-scrollbar{ width:0; height:0; background:transparent }
+
+.select2__list { list-style: none; margin: 0; padding: .25rem .2rem .35rem; }
+.select2__option { display: grid; grid-template-columns: 1.15rem 1fr; align-items: center; gap: .5rem; padding: .55rem .65rem; margin: 0 .2rem; border-radius: 8px; color: rgba(255,255,255,0.92); cursor: pointer; }
+.select2__check { width: 1rem; height: 1rem; border: 1px solid rgba(255,255,255,0.35); border-radius: .25rem; display: inline-block; background: rgba(0,0,0,0.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.12); }
+.select2__option.is-selected .select2__check { background: rgba(59,130,246,0.9); border-color: rgba(59,130,246,1); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.25); }
+.select2__label { color: rgba(255,255,255,0.92); }
+.select2__option:hover { background: rgba(255,255,255,0.08); }
+.select2__option.is-active { background: rgba(255,255,255,0.12); }
+.select2__option.is-selected { outline: none; }
+
+@media (max-width: 640px), (pointer: coarse){
+  .select2__dropdown { top: calc(100% - 3px); animation: none !important; }
+}
+
+/* Merge borders when open */
+.select2[data-open="true"] .select2__control { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; border-bottom-width: 0 !important; }

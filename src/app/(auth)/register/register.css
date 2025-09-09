@@ -1,0 +1,19 @@
+.register-choose{width:100%;max-width:680px;margin:clamp(12px,4vh,24px) auto;padding:clamp(12px,3vw,20px);border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);color:#fff;text-align:center;box-shadow:0 10px 40px -12px rgba(0,0,0,.55)}
+.register-choose h2{margin:0 0 .5rem;font-size:1.6rem;font-weight:700}
+.register-choose__hint{margin:0 0 1rem;color:rgba(255,255,255,.85)}
+.register-choose__grid{display:grid;grid-template-columns:1fr;gap:.9rem}
+@media (min-width:640px){.register-choose__grid{grid-template-columns:1fr 1fr}}
+.register-choose__card{display:flex;flex-direction:column;gap:.35rem;align-items:flex-start;text-align:left;padding:1rem 1.1rem;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.18);color:#fff;text-decoration:none;transition:background .25s,border-color .25s,box-shadow .25s}
+.register-choose__card:hover{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.35);box-shadow:0 8px 22px -12px rgba(0,0,0,.55)}
+.register-choose__title{font-weight:700;letter-spacing:.2px}
+.register-choose__desc{color:rgba(255,255,255,.85);font-size:.95rem}
+.register-form{margin-top:1rem}
+
+/* Row-based grid: each pair is a row to keep order predictable */
+.register-row{display:grid;grid-template-columns:1fr;gap:.75rem;margin-bottom:.75rem}
+@media (min-width:1024px){.register-row{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:.9rem;row-gap:0}.register-row .login__field{margin-bottom:0}}
+
+/* Slightly wider container on large desktops (small, measured increase) */
+@media (min-width: 1280px){
+	.register-choose{max-width:760px}
+}

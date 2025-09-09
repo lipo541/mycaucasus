@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useState, useRef } from 'react';
+import type { User } from '@supabase/supabase-js';
 import Link from 'next/link';
 import './header.css';
 import { NavBar } from '../navigation/NavBar';
+import { supabase } from '../../lib/supabaseClient';
+import { toast } from '../../lib/toast';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -19,6 +22,13 @@ export function Header() {
   const isCoarseRef = useRef(false);
   const langOpenModeRef = useRef<null | 'hover' | 'click'>(null);
   const [isMobileView, setIsMobileView] = useState(false);
+  // Auth state
+  const [user, setUser] = useState<User | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userWrapRef = useRef<HTMLDivElement | null>(null);
+  const userCloseTimeout = useRef<number | null>(null);
+  const userOpenModeRef = useRef<null | 'hover' | 'click'>(null);
+  const [userDropdownPos, setUserDropdownPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
 
   // Detect coarse pointer (touch) to disable hover open/close logic on mobile
   useEffect(() => {
@@ -29,6 +39,64 @@ export function Header() {
     mq.addEventListener('change', set);
     return () => mq.removeEventListener('change', set);
   }, []);
+
+  // Load session and subscribe to auth changes
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setUser(data.session?.user ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (event === 'SIGNED_IN') {
+        toast.success('Log in წარმატებულია');
+      }
+      if (!session) setUserMenuOpen(false);
+    });
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Close user menu on outside click / escape
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (userWrapRef.current && !userWrapRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setUserMenuOpen(false); };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [userMenuOpen]);
+
+  // Recalculate user dropdown fixed position (align to header bottom, right-aligned to icon)
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const calc = () => {
+      if (!headerRef.current || !userWrapRef.current) return;
+      const headerRect = headerRef.current.getBoundingClientRect();
+      const wrapRect = userWrapRef.current.getBoundingClientRect();
+      setUserDropdownPos({
+        top: Math.round(headerRect.bottom),
+        right: Math.round(window.innerWidth - wrapRect.right)
+      });
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    window.addEventListener('scroll', calc, { passive: true });
+    return () => {
+      window.removeEventListener('resize', calc);
+      window.removeEventListener('scroll', calc);
+    };
+  }, [userMenuOpen]);
 
   // Close dropdown on outside click / escape
   useEffect(() => {
@@ -130,7 +198,6 @@ export function Header() {
                 placeholder="Search..."
                 autoComplete="off"
                 spellCheck={false}
-                aria-expanded={searchOpen ? 'true' : 'false'}
               />
             </form>
           </div>
@@ -160,12 +227,88 @@ export function Header() {
               <path d="M12 21.35 10.55 20.03C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.9 0 3.6 1.13 4.5 2.88C11.9 5.13 13.6 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35Z" />
             </svg>
           </button>
-            <button className="icon-btn hide-on-mobile" type="button" aria-label="Log in">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="8" r="4" />
-                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-              </svg>
-            </button>
+            {!user ? (
+              <Link href="/login" className="icon-btn hide-on-mobile" aria-label="Log in">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                </svg>
+              </Link>
+            ) : (
+              <div
+                className="site-header__user-wrap hide-on-mobile"
+                ref={userWrapRef}
+                onMouseEnter={() => {
+                  if (isCoarseRef.current) return;
+                  if (userCloseTimeout.current) {
+                    clearTimeout(userCloseTimeout.current);
+                    userCloseTimeout.current = null;
+                  }
+                  if (!userMenuOpen) {
+                    userOpenModeRef.current = 'hover';
+                    setUserMenuOpen(true);
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (isCoarseRef.current) return;
+                  if (userOpenModeRef.current !== 'hover') return;
+                  if (userCloseTimeout.current) clearTimeout(userCloseTimeout.current);
+                  userCloseTimeout.current = window.setTimeout(() => {
+                    if (userOpenModeRef.current === 'hover') {
+                      setUserMenuOpen(false);
+                      userOpenModeRef.current = null;
+                    }
+                  }, 160);
+                }}
+              >
+                <button
+                  className="icon-btn"
+                  type="button"
+                  aria-label="Account menu"
+                  aria-haspopup="menu"
+                  aria-expanded={userMenuOpen}
+                  onClick={() => {
+                    setUserMenuOpen(o => {
+                      const next = !o;
+                      if (next) {
+                        userOpenModeRef.current = 'click';
+                      } else {
+                        userOpenModeRef.current = null;
+                      }
+                      return next;
+                    });
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                  </svg>
+                </button>
+                {userMenuOpen && (
+                  <ul
+                    className="user-dropdown lang-dropdown lang-dropdown--fixed"
+                    role="menu"
+                    style={{ position: 'fixed', top: userDropdownPos.top, right: userDropdownPos.right, marginTop: 0 }}
+                  >
+                    <li className="lang-dropdown__item" role="none">
+                      <Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+                        <span className="lang-dropdown__label">Profile</span>
+                      </Link>
+                    </li>
+                    <li className="lang-dropdown__item" role="none">
+                      <button
+                        className="lang-dropdown__btn"
+                        role="menuitem"
+                        onClick={async () => { await supabase.auth.signOut(); setUserMenuOpen(false); toast.info('Logout შესრულდა'); }}
+                        type="button"
+                      >
+                        <span className="lang-dropdown__label">Log out</span>
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </div>
+            )}
           <div
             className="site-header__lang-wrap"
             ref={langWrapRef}
@@ -286,10 +429,23 @@ export function Header() {
               <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
               <span>Map</span>
             </button>
-            <button className="menu-panel__action" type="button" aria-label="Log in">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
-              <span>Log in</span>
-            </button>
+            {!user ? (
+              <Link className="menu-panel__action" href="/login" aria-label="Log in" onClick={() => setBurgerOpen(false)}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                <span>Log in</span>
+              </Link>
+            ) : (
+              <>
+                <Link className="menu-panel__action" href="/profile" onClick={() => setBurgerOpen(false)}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>
+                  <span>Profile</span>
+                </Link>
+                <button className="menu-panel__action" type="button" onClick={async ()=>{ await supabase.auth.signOut(); setBurgerOpen(false); toast.info('Logout შესრულდა'); }}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+                  <span>Log out</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
         {burgerOpen && <div className="site-header__menu-backdrop" onClick={() => setBurgerOpen(false)} aria-hidden="true" />}

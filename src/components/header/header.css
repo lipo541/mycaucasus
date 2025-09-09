@@ -16,15 +16,14 @@
   padding-top: env(safe-area-inset-top, 0); /* iOS notch */
 }
 
-/* Hover state: full white header with dark content */
-/* Scrolled OR Hovered: white style */
+/* Hover/Scrolled: keep white text, switch to dark glass background */
 .site-header.is-scrolled,
 .site-header:hover {
-  background: #ffffff;
-  color: #111111;
-  backdrop-filter: none;
-  border-color: rgba(0,0,0,0.08);
-  box-shadow: 0 6px 22px -10px rgba(0,0,0,0.25);
+  background: rgba(13,15,19,0.75);
+  color: #ffffff;
+  backdrop-filter: blur(8px) saturate(140%);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 6px 22px -10px rgba(0,0,0,0.35);
 }
 
 .site-header.is-scrolled .site-header__logo,
@@ -34,13 +33,13 @@
 .site-header:hover .site-header__logo,
 .site-header:hover .icon-btn,
 .site-header:hover .site-header__lang-btn,
-.site-header:hover .site-header__burger { color:#111111; }
+.site-header:hover .site-header__burger { color:#ffffff; }
 
 .site-header.is-scrolled .site-header__burger,
-.site-header:hover .site-header__burger { border-color: rgba(0,0,0,0.25); background: transparent; }
+.site-header:hover .site-header__burger { border-color: rgba(255,255,255,0.25); background: transparent; }
 
 .site-header.is-scrolled .site-header__lang-btn.has-caret::after,
-.site-header:hover .site-header__lang-btn.has-caret::after { border-color:#111111; }
+.site-header:hover .site-header__lang-btn.has-caret::after { border-color:#ffffff; }
 
 /* (Legacy glass scrolled style removed; unified white style used) */
 
