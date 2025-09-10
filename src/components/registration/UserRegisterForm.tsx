@@ -3,11 +3,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import '../auth/Login.css';
 import styles from './UserRegisterForm.module.css';
-import { supabase } from '../../lib/supabaseClient';
+import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { PhoneInput } from '../ui/PhoneInput';
 
 export function UserRegisterForm() {
+  const supabase = createSupabaseBrowserClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');

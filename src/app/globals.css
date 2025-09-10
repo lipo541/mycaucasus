@@ -10,16 +10,17 @@
   /* Fluid scaling factor (0 -> 1 as viewport grows from min to max) */
   --fluid-range: calc((100vw - var(--app-min-width)) / ( (1440px - 300px) ));
 
-  /* Base font sizes (14px -> 20px fluid) */
-  --font-size-base-min: 14px;
-  --font-size-base-max: 20px;
+  /* Base font sizes (tighter, smaller range). Previous fluid 14→20px caused overscaling.
+    Now constrain to 15→16px so large screens don't inflate body copy. */
+  --font-size-base-min: 15px;
+  --font-size-base-max: 16px;
   --font-size-base: clamp(var(--font-size-base-min), calc(var(--font-size-base-min) + (var(--font-size-base-max) - var(--font-size-base-min)) * var(--fluid-range)), var(--font-size-base-max));
 
-  /* Scales for headings (relative multipliers) */
-  --scale-step-1: clamp(1.15rem, 0.9rem + 1.1vw, 1.5rem);
-  --scale-step-2: clamp(1.4rem, 1.05rem + 1.6vw, 2.1rem);
-  --scale-step-3: clamp(1.8rem, 1.2rem + 2.4vw, 2.8rem);
-  --scale-step-4: clamp(2.2rem, 1.5rem + 3.2vw, 3.4rem);
+  /* Downscaled heading steps to match reduced base (approx 8–14% smaller at upper bound) */
+  --scale-step-1: clamp(1.05rem, 0.9rem + 0.7vw, 1.35rem);
+  --scale-step-2: clamp(1.25rem, 1.05rem + 1.0vw, 1.75rem);
+  --scale-step-3: clamp(1.55rem, 1.2rem + 1.5vw, 2.2rem);
+  --scale-step-4: clamp(1.9rem, 1.45rem + 2.1vw, 2.7rem);
 
   /* Colors (neutral for clean slate) */
   --color-bg: #ffffff;

@@ -1,15 +1,14 @@
 import './globals.css';
-import '../components/ui/toaster.css';
-import dynamic from 'next/dynamic';
+import './legacy-globals.css';
+import ClientToaster from '../components/ClientToaster';
 
-const Toaster = dynamic(() => import('../components/ui/Toaster'), { ssr: false });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-        <Toaster />
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body>
+				{children}
+				<ClientToaster />
+			</body>
+		</html>
+	);
 }

@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import '../auth/Login.css';
 import styles from './SoloPilotRegisterForm.module.css';
-import { supabase } from '../../lib/supabaseClient';
+import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { PhoneInput } from '../ui/PhoneInput';
 import { Select } from '../ui/Select';
 import { toast } from '../../lib/toast';
@@ -12,6 +12,7 @@ import { InfoTip } from '../ui/InfoTip';
 import { MultiTextInput } from '../ui/MultiTextInput';
 
 export function SoloPilotRegisterForm() {
+  const supabase = createSupabaseBrowserClient();
   // Base auth
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

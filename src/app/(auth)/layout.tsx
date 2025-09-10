@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import 'flag-icons/css/flag-icons.min.css';
 import '../globals.css';
-import '../../components/ui/ui.css';
-import '../../components/header/header.css';
 import { Header } from '../../components/header/Header';
 import './auth-layout.css';
 

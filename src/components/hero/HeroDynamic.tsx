@@ -1,23 +1,11 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
-import { HERO_PANELS, HeroPanel } from '../../config/heroPanels';
-import './hero.css';
+import { HERO_PANELS } from '../../config/heroPanels';
+// styles now provided via legacy-globals.css
 
-// Panels enhanced with runtime background resolution & load state
-interface RuntimePanel extends HeroPanel { _resolved: string; _failed?: boolean; }
-const pickVariant = (panel: HeroPanel, vw: number): string => {
-  if (!panel.variants || panel.variants.length === 0) return panel.bg;
-  // choose smallest variant whose width >= vw, else largest
-  const sorted = [...panel.variants].sort((a,b)=>a.width-b.width);
-  for (const v of sorted) {
-    if (v.width >= vw) return v.webp || v.jpg || panel.bg;
-  }
-  return sorted[sorted.length - 1].webp || sorted[sorted.length - 1].jpg || panel.bg;
-};
-
-const enhance = (panel: HeroPanel): RuntimePanel => ({ ...panel, _resolved: panel.bg });
-const PANELS: RuntimePanel[] = HERO_PANELS.map(enhance);
+// Directly use panels (single high-res bg; Next.js will create responsive variants)
+const PANELS = HERO_PANELS;
 
 export function HeroDynamic() {
   const [active, setActive] = useState<number>(0);
@@ -49,14 +37,7 @@ export function HeroDynamic() {
   }, 5000); // 5s interval as requested
   }, []);
 
-  const recomputeActiveVariant = useCallback(() => {
-    const vw = window.innerWidth || 1920;
-    PANELS.forEach((rp, idx) => {
-      const base = HERO_PANELS[idx];
-      const chosen = pickVariant(base, vw);
-      rp._resolved = chosen;
-    });
-  }, []);
+  // No variant recomputation needed now
 
   const onSelect = (i: number) => {
     if (i === active) return;
@@ -77,24 +58,10 @@ export function HeroDynamic() {
   };
 
   // Preload images (lightweight hint)
-  useEffect(() => {
-    // Initial variant resolution + resize listener
-    recomputeActiveVariant();
-    const handler = () => recomputeActiveVariant();
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
-  }, [recomputeActiveVariant]);
+  // Removed variant resize effect
 
   // Preload only adjacent slides instead of all (reduces aborted fetch noise)
-  useEffect(() => {
-    const preload = (index: number) => {
-      if (index < 0 || index >= PANELS.length) return;
-      const img = new window.Image();
-      img.src = PANELS[index]._resolved;
-    };
-    preload((active + 1) % PANELS.length);
-    preload((active - 1 + PANELS.length) % PANELS.length);
-  }, [active]);
+  // Optional: could preload next/prev with Image component priority tweaks; keeping simple
 
   // Auto-rotation enabled (stops permanently after any manual user switch)
   useEffect(() => { startAuto(); return stopAuto; }, [startAuto, stopAuto]);
@@ -184,7 +151,7 @@ export function HeroDynamic() {
   return (
     <section
       className={`hero-dynamic ${dragging ? 'is-dragging' : ''}`}
-      aria-label="Paragliding platform highlights"
+      aria-label="პარაგლაიდინგის პლატფორმის მთავარი შეთავაზებები"
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
@@ -198,21 +165,12 @@ export function HeroDynamic() {
           {PANELS.map((p, i) => (
             <div className="hero-slide" key={p.id}>
               <Image
-                src={p._resolved}
-                alt=""
+                src={p.bg}
+                alt={p.title}
                 fill
                 priority={i === 0}
                 sizes="100vw"
-                // We manually manage responsive variants, so disable Next.js optimizer to avoid AbortError noise
-                unoptimized
                 className="hero-bg-img"
-                onError={(e) => {
-                  const fallback = HERO_PANELS[i].fallbackBg;
-                  if (fallback && PANELS[i]._resolved !== fallback) {
-                    PANELS[i]._resolved = fallback;
-                    (e.target as HTMLImageElement).src = fallback;
-                  }
-                }}
               />
             </div>
           ))}
@@ -238,7 +196,7 @@ export function HeroDynamic() {
           )}
         </div>
         {/* Floating thumbnail switcher (bottom-right) */}
-        <div className="hero-thumbs" role="list" aria-label="Quick section preview thumbnails">
+  <div className="hero-thumbs" role="list" aria-label="სექციების სწრაფი წინასწარ ნახვის თუმბნეილები">
           {PANELS.map((p, i) => (
             <button
               key={p.id + '-thumb'}

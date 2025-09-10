@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import "./select.css";
+// select styles provided via legacy-globals.css
 
 type Option = { value: string; label: string };
 

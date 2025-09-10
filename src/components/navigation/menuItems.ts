@@ -25,7 +25,7 @@ export const menuItems: NavItem[] = [
     id: 'locations',
     i18n: {
       EN: 'Locations',
-      KA: 'ადგილმდებარეობები', // If different desired wording, update
+      KA: 'ლოკაციები', // If different desired wording, update
       RU: 'Locations', // TODO translate
       AR: 'Locations', // TODO translate
       DE: 'Standorte'
@@ -52,10 +52,9 @@ export const menuItems: NavItem[] = [
         i18n: { EN: 'Mestia', KA: 'მესტია', RU: 'Mestia', AR: 'Mestia', DE: 'Mestia' }
       },
       {
-        id: 'loc-submenu',
-        i18n: { EN: 'Submenu', KA: 'ქვემენიუ', RU: 'Submenu', AR: 'Submenu', DE: 'Submenü' },
-        // Placeholder for deeper nested items if needed later
-        children: []
+        id: 'loc-gonio',
+        href: '/locations/gonio',
+        i18n: { EN: 'Gonio', KA: 'გონიო', RU: 'Gonio', AR: 'Gonio', DE: 'Gonio' }
       }
     ]
   },
@@ -81,7 +80,7 @@ export const menuItems: NavItem[] = [
     id: 'courses',
     i18n: {
       EN: 'Courses',
-      KA: 'კურსები',
+      KA: 'სწავლება',
       RU: 'Courses', // TODO translate
       AR: 'Courses', // TODO translate
       DE: 'Kurse'
@@ -123,15 +122,89 @@ export const menuItems: NavItem[] = [
     ]
   },
   {
-    id: 'exam-tests',
-    href: '/exam-tests',
+    id: 'tests',
+    // Parent now has dropdown children representing theoretical & safety test sections
     i18n: {
-      EN: 'Exam Tests',
-      KA: 'გამოცდის ტესტები',
-      RU: 'Exam Tests', // TODO translate
-      AR: 'Exam Tests', // TODO translate
-      DE: 'Prüfungstests'
-    }
+      EN: 'Tests',
+      KA: 'ტესტები',
+      RU: 'Tests', // TODO translate
+      AR: 'Tests', // TODO translate
+      DE: 'Tests'
+    },
+    children: [
+      {
+        id: 'test-safety',
+        href: '/tests/safety',
+        i18n: {
+          EN: 'Safety Test',
+          KA: 'უსაფრთხოების ტესტი',
+          RU: 'Safety Test', AR: 'Safety Test', DE: 'Sicherheitstest'
+        }
+      },
+      {
+        id: 'test-air-law',
+        href: '/tests/air-law',
+        i18n: {
+          EN: 'Air Law & Rules',
+          KA: 'აეროკანონი და წესები',
+          RU: 'Air Law & Rules', AR: 'Air Law & Rules', DE: 'Luftrecht & Regeln'
+        }
+      },
+      {
+        id: 'test-meteorology',
+        href: '/tests/meteorology',
+        i18n: {
+          EN: 'Meteorology',
+          KA: 'მეტეოროლოგია',
+          RU: 'Meteorology', AR: 'Meteorology', DE: 'Meteorologie'
+        }
+      },
+      {
+        id: 'test-aerodynamics',
+        href: '/tests/aerodynamics',
+        i18n: {
+          EN: 'Aerodynamics / Flight Theory',
+          KA: 'აეროდინამიკა / ფრენის თეორია',
+          RU: 'Aerodynamics / Flight Theory', AR: 'Aerodynamics / Flight Theory', DE: 'Aerodynamik / Flugtheorie'
+        }
+      },
+      {
+        id: 'test-navigation',
+        href: '/tests/navigation',
+        i18n: {
+          EN: 'Navigation & Flight Planning',
+          KA: 'ნავიგაცია და ფრენის დაგეგმვა',
+          RU: 'Navigation & Flight Planning', AR: 'Navigation & Flight Planning', DE: 'Navigation & Flugplanung'
+        }
+      },
+      {
+        id: 'test-equipment',
+        href: '/tests/equipment',
+        i18n: {
+          EN: 'Equipment & Maintenance',
+          KA: 'ინვენტარი და მოვლა',
+          RU: 'Equipment & Maintenance', AR: 'Equipment & Maintenance', DE: 'Ausrüstung & Wartung'
+        }
+      },
+      {
+        id: 'test-emergency',
+        href: '/tests/emergency-procedures',
+        i18n: {
+          EN: 'Emergency Procedures',
+          KA: 'საგანგებო პროცედურები',
+          RU: 'Emergency Procedures', AR: 'Emergency Procedures', DE: 'Notfallverfahren'
+        }
+      },
+      {
+        id: 'test-local-regs',
+        href: '/tests/local-regulations',
+        i18n: {
+          EN: 'Local Regulations',
+          KA: 'ადგილობრივი რეგულაციები',
+          RU: 'Local Regulations', AR: 'Local Regulations', DE: 'Lokale Vorschriften'
+        }
+      }
+    ]
   },
   {
     id: 'about-us',

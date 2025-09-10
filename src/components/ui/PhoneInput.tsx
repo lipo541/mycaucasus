@@ -2,7 +2,7 @@
 import React from 'react';
 import BasePhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import './phone-input.css';
+// phone input styles provided via legacy-globals.css
 
 type Props = {
   value: string | undefined;
