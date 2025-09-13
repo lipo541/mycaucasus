@@ -122,39 +122,38 @@ export default function AddLocation() {
 			<h2 className={styles.title}>Add Location</h2>
 			<p className={styles.desc}>მონაცემები ლოკაციის სრულ გვერდსა და ინფო ბარათზე გამოსატანად.</p>
 			<form onSubmit={submit} className={styles.form}>
-
-				<hr className={styles.hrSpace} />
-				{/* Images & Slogan */}
-				<div className={styles.fieldsetGroup}>
-					<div className={styles.fieldset}>
-						<span className={styles.legendInline}>სურათები & სლოგანი</span>
-						<div className={styles.twoCol}>
-							<div className={styles.fileInput}>
-								<label>მთავარი ბექგრაუნდის სურათი *</label>
-								<input type="file" accept="image/*" onChange={e => handleHeroImage(e.target.files?.[0] || null)} />
-								{draft.heroImage && <span className={styles.smallNote}>{draft.heroImage.name}</span>}
-							</div>
-							<div className={styles.fileInput}>
-								<label>ინფო ბარათის სურათი</label>
-								<input type="file" accept="image/*" onChange={e => handleCardImage(e.target.files?.[0] || null)} />
-								{draft.cardImage && <span className={styles.smallNote}>{draft.cardImage.name}</span>}
-							</div>
+				{/* 1. Images & Slogan */}
+				<fieldset className={styles.fieldset}>
+					<legend className={styles.legendInline}>1) სურათები & სლოგანი / Images & Slogan</legend>
+					<div className={styles.twoCol}>
+						<div className={styles.fileInput}>
+							<label>მთავარი ბექგრაუნდის სურათი *</label>
+							<input type="file" accept="image/*" onChange={e => handleHeroImage(e.target.files?.[0] || null)} />
+							{draft.heroImage && <span className={styles.smallNote}>{draft.heroImage.name}</span>}
+							<span className={styles.smallNote}>GE: გვერდის მთავარი ვიზუალი. EN: Main hero background image.</span>
 						</div>
-						<div className={styles.field}>
-							<label htmlFor="loc-slogan">სლოგანი (H1) *</label>
-							<input id="loc-slogan" value={draft.slogan} onChange={e => update('slogan', e.target.value)} placeholder="მაგ: ფრენა გუდაურის ზემოთ" />
-						</div>
-						<div className={styles.field}>
-							<label htmlFor="loc-maintext">მთავარი ტექსტი</label>
-							<textarea id="loc-maintext" rows={4} value={draft.mainText} onChange={e => update('mainText', e.target.value)} placeholder="სლოგანის შემდეგი ძირითადი ტექსტი..." />
-							<span className={styles.smallNote}>ეს ტექსტი გამოჩნდება სლოგანის ქვემოთ.</span>
+						<div className={styles.fileInput}>
+							<label>ინფო ბარათის სურათი</label>
+							<input type="file" accept="image/*" onChange={e => handleCardImage(e.target.files?.[0] || null)} />
+							{draft.cardImage && <span className={styles.smallNote}>{draft.cardImage.name}</span>}
+							<span className={styles.smallNote}>GE: ბარათზე გამოსატანი სურათი. EN: Card image (optional).</span>
 						</div>
 					</div>
-				</div>
+					<div className={styles.field}>
+						<label htmlFor="loc-slogan">სლოგანი (H1) *</label>
+						<input id="loc-slogan" value={draft.slogan} onChange={e => update('slogan', e.target.value)} placeholder="მაგ: ფრენა გუდაურის ზემოთ" />
+						<span className={styles.smallNote}>GE: მთავარი სათაური. EN: Main headline.</span>
+					</div>
+					<div className={styles.field}>
+						<label htmlFor="loc-maintext">მთავარი ტექსტი</label>
+						<textarea id="loc-maintext" rows={4} value={draft.mainText} onChange={e => update('mainText', e.target.value)} placeholder="სლოგანის შემდეგი ძირითადი ტექსტი..." />
+						<span className={styles.smallNote}>GE: სლოგანის ქვემოთ. EN: Appears under slogan.</span>
+					</div>
+				</fieldset>
 
-				{/* Flight Packages */}
-				<div className={styles.fieldset}>
-					<span className={styles.legendInline}>ფრენის პაკეტები</span>
+				{/* 2. Flight Packages */}
+				<fieldset className={styles.fieldset}>
+					<legend className={styles.legendInline}>2) ფრენის პაკეტები / Flight Packages</legend>
 					<div className={styles.twoCol}>
 						{draft.flights.map(f => (
 							<div key={f.key} className={styles.flightBlock}>
@@ -162,10 +161,12 @@ export default function AddLocation() {
 								<div className={styles.field}>
 									<label>აღწერა</label>
 									<textarea rows={3} value={f.description} onChange={e => updateFlight(f.key, 'description', e.target.value)} placeholder="აღწერა..." />
+									<span className={styles.smallNote}>GE: მოკლე ტექსტი. EN: Short description.</span>
 								</div>
 								<div className={styles.field}>
 									<label>დამატებითი ინფორმაცია</label>
 									<textarea rows={2} value={f.info} onChange={e => updateFlight(f.key, 'info', e.target.value)} placeholder="ინფო..." />
+									<span className={styles.smallNote}>GE: დამატებითი დეტალი. EN: Extra info.</span>
 								</div>
 								<div className={styles.inlineInputs}>
 									<div className={styles.field}>
@@ -180,26 +181,28 @@ export default function AddLocation() {
 							</div>
 						))}
 					</div>
-				</div>
+				</fieldset>
 
-				{/* Info Card Text */}
-				<div className={styles.fieldset}>
-					<span className={styles.legendInline}>ინფო ბარათის ტექსტი</span>
+				{/* 3. Info Card Text */}
+				<fieldset className={styles.fieldset}>
+					<legend className={styles.legendInline}>3) ინფო ბარათი / Info Card</legend>
 					<div className={styles.cardFields}>
 						<div className={styles.field}>
 							<label>ბარათის სათაური</label>
 							<input value={draft.infoCardTitle} onChange={e => update('infoCardTitle', e.target.value)} />
+							<span className={styles.smallNote}>GE: მოკლე headline. EN: Short title.</span>
 						</div>
 						<div className={styles.field}>
 							<label>ბარათის ტექსტი</label>
 							<textarea rows={3} value={draft.infoCardText} onChange={e => update('infoCardText', e.target.value)} />
+							<span className={styles.smallNote}>GE: აღწერა. EN: Description.</span>
 						</div>
 					</div>
-				</div>
+				</fieldset>
 
-				{/* Location Sections */}
-				<div className={styles.fieldset}>
-					<span className={styles.legendInline}>ლოკაციის სექციები (3)</span>
+				{/* 4. Location Sections */}
+				<fieldset className={styles.fieldset}>
+					<legend className={styles.legendInline}>4) ლოკაციის სექციები / Location Sections (3)</legend>
 					<div className={styles.stack}>
 						{draft.sections.map((s, idx) => (
 							<div key={s.id} className={styles.sectionGroup}>
@@ -221,31 +224,37 @@ export default function AddLocation() {
 											))}
 										</div>
 									)}
-									<span className={styles.smallNote}>შეგიძლია რამდენიმე სურათი დაამატო.</span>
+									<span className={styles.smallNote}>GE: შეგიძლია რამდენიმე სურათი. EN: Multiple images allowed.</span>
 								</div>
 							</div>
 						))}
 					</div>
-				</div>
-				<div className={styles.field}>
-					<label htmlFor="loc-desc">აღწერა</label>
+				</fieldset>
+
+				{/* 5. Description & Tags */}
+				<fieldset className={styles.fieldset}>
+					<legend className={styles.legendInline}>5) აღწერა & ტეგები / Description & Tags</legend>
+					<div className={styles.field}>
+						<label htmlFor="loc-desc">აღწერა</label>
 						<textarea id="loc-desc" rows={4} value={draft.description} onChange={e => update('description', e.target.value)} placeholder="მოკლე აღწერა, ქარი, დაშვების პუნქტი..." />
-						<span className={styles.smallNote}>თუ გჭირდება Markdown, მოგვიანებით დავამატებთ.</span>
-				</div>
-				<div className={styles.field}>
-					<label htmlFor="loc-tag">ტეგები</label>
-					<div style={{display:'flex', gap:'.5rem'}}>
-						<input id="loc-tag" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="მაგ: thermal" onKeyDown={e => { if (e.key === 'Enter'){ e.preventDefault(); addTag(); }}} />
-						<button type="button" className={styles.btn} onClick={addTag} disabled={!tagInput.trim()}>დამატება</button>
+						<span className={styles.smallNote}>GE: ზოგადი მიმოხილვა. EN: General overview.</span>
 					</div>
-					{draft.tags.length > 0 && (
-						<div className={styles.chips}>
-							{draft.tags.map(t => (
-								<span key={t} className={styles.chip}>{t}<button type="button" onClick={() => removeTag(t)} aria-label={`წაშალე ${t}`}>×</button></span>
-							))}
+					<div className={styles.field}>
+						<label htmlFor="loc-tag">ტეგები</label>
+						<div style={{display:'flex', gap:'.5rem'}}>
+							<input id="loc-tag" value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="მაგ: thermal" onKeyDown={e => { if (e.key === 'Enter'){ e.preventDefault(); addTag(); }}} />
+							<button type="button" className={styles.btn} onClick={addTag} disabled={!tagInput.trim()}>დამატება</button>
 						</div>
-					)}
-				</div>
+						{draft.tags.length > 0 && (
+							<div className={styles.chips}>
+								{draft.tags.map(t => (
+									<span key={t} className={styles.chip}>{t}<button type="button" onClick={() => removeTag(t)} aria-label={`წაშალე ${t}`}>×</button></span>
+								))}
+							</div>
+						)}
+					</div>
+				</fieldset>
+
 				<div className={styles.actions}>
 					<button type="reset" className={`${styles.btn} ${styles.danger}`} onClick={() => { setStatus('გაქრა ფორმა'); window.location.reload(); }}>გასუფთავება</button>
 					<button type="submit" className={`${styles.btn} ${styles.primary}`} disabled={saving}>{saving ? 'შენახვა...' : 'შენახვა'}</button>
