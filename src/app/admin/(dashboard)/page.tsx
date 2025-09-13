@@ -1,24 +1,15 @@
-export const dynamic = 'force-dynamic';
+import Dashboard from '@/components/superadmin/dashboard/Dashboard';
+import { getServerRole } from '@/lib/getServerRole';
+import { redirect } from 'next/navigation';
+import React from 'react';
 
-export default function AdminDashboardPage() {
-  return (
-    <main className="admin-dashboard">
-      <h1>ადმინისტრატორის პანელი</h1>
-      <p>ეს არის დაცული სივრცე მხოლოდ Superadmin როლისათვის.</p>
-      <div className="admin-grid">
-        <section className="admin-card">
-          <h2>მომხმარებლები</h2>
-          <p>Coming soon...</p>
-        </section>
-        <section className="admin-card">
-          <h2>პილოტების დამტკიცება</h2>
-          <p>Coming soon...</p>
-        </section>
-        <section className="admin-card">
-          <h2>ლოგები</h2>
-          <p>Coming soon...</p>
-        </section>
-      </div>
-    </main>
-  );
+export default async function AdminDashboardPage() {
+	const role = await getServerRole();
+
+	// Secure this page
+	if (role !== 'superadmin') {
+		redirect('/');
+	}
+
+	return <Dashboard />;
 }

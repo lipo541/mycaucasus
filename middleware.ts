@@ -54,16 +54,28 @@ export async function middleware(request: NextRequest) {
 		}
 	);
 
-	const {
-		data: { session }
-	} = await supabase.auth.getSession();
-
+	const { data: { session } } = await supabase.auth.getSession();
 	const userRole = session?.user?.user_metadata?.role;
 
-	if (request.nextUrl.pathname.startsWith('/admin')) {
+	const path = request.nextUrl.pathname;
+
+	// Strategy change: Superadmin is confined to /admin namespace.
+	// 1. Non-superadmin trying to access /admin -> redirect to '/'
+	// 2. Superadmin accessing ANY non-/admin route -> redirect to '/admin'
+
+	if (path.startsWith('/admin')) {
 		if (userRole !== 'superadmin') {
 			return NextResponse.redirect(new URL('/', request.url));
 		}
+	} else {
+		if (userRole === 'superadmin') {
+			return NextResponse.redirect(new URL('/admin', request.url));
+		}
+	}
+
+	// Block auth pages for any authenticated user (now also covered by superadmin confinement above)
+	if (session && (path === '/login' || path === '/register' || path.startsWith('/register/'))) {
+		return NextResponse.redirect(new URL(userRole === 'superadmin' ? '/admin' : '/', request.url));
 	}
 
 	return response;

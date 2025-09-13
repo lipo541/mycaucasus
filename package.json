@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.57.2",
+    "@react-google-maps/api": "^2.20.3",
     "flag-icons": "^7.5.0",
     "libphonenumber-js": "^1.12.15",
     "next": "^15.5.2",

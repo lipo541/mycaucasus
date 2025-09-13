@@ -22,7 +22,13 @@ export default function Login() {
 		try {
 			const { error } = await supabase.auth.signInWithOAuth({
 				provider,
-				options: { redirectTo: typeof window !== 'undefined' ? window.location.origin : undefined },
+				options: {
+					redirectTo:
+						typeof window !== 'undefined' ? window.location.origin : undefined,
+					queryParams: {
+						prompt: 'select_account',
+					},
+				},
 			});
 			if (error) setError(error.message);
 			else toast.info('გადამისამართება პროვაიდერზე...');

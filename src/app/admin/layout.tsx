@@ -1,7 +1,9 @@
-'use client';
+"use client";
 import { useEffect, useState } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+
+// Guard removed per cleanup decision: layout now contains only role gating.
 
 export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
 	const [role, setRole] = useState<string | null>(null);
@@ -30,5 +32,5 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
 	if (role !== 'superadmin') {
 		return null;
 	}
-	return <div className="admin-root">{children}</div>;
+	return <div className="admin-shell">{children}</div>;
 }

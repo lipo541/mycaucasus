@@ -1,5 +1,10 @@
 import { SoloPilotRegisterForm } from '../../../../../components/registration/SoloPilotRegisterForm';
+import { AuthRedirectGuard } from '../../../../../components/auth/AuthRedirectGuard';
 
 export default function RegisterSoloPilotPage() {
-  return <SoloPilotRegisterForm />;
+  return (
+    <AuthRedirectGuard>
+      <SoloPilotRegisterForm />
+    </AuthRedirectGuard>
+  );
 }
