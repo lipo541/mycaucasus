@@ -224,6 +224,15 @@
     color: #475569;
 }
 
+/* Avatar images (table) */
+.avatarImg {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
 .userName {
     font-weight: 600;
     font-size: .82rem;
@@ -343,6 +352,25 @@
     display: flex;
     gap: .5rem;
     flex-wrap: wrap;
+}
+
+/* File list for licenses */
+.fileList {
+    list-style: none;
+    padding: 0;
+    margin: .25rem 0 0;
+    display: flex;
+    gap: .35rem .5rem;
+    flex-wrap: wrap;
+}
+.linkButton {
+    background: none;
+    border: none;
+    color: #2563eb;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: .7rem;
+    padding: 0;
 }
 
 /* Edit form */
@@ -556,6 +584,14 @@
     color: #334155;
 }
 
+.avatarLgImg {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
 .cardName {
     font-weight: 600;
     font-size: .9rem;
@@ -643,4 +679,37 @@
         flex: 1 1 auto;
         max-width: 100%;
     }
+}
+
+/* Fullscreen image viewer */
+.imageOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+.image {
+    max-width: 92vw;
+    max-height: 92vh;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,.5);
+}
+.imageClose {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: rgba(255,255,255,.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
 }

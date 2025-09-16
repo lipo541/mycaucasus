@@ -14,7 +14,7 @@ const ROLE_ORDER: AnyRole[] = ['Superadmin','Pilot (Tandem)','Pilot (Solo)','Ope
 
 // Types
 interface User {
-  id: number;
+  id: string; // Supabase user id (UUID)
   name: string;
   email: string;
   role: AnyRole; // consolidated strict role type
@@ -35,95 +35,44 @@ interface User {
   reserve_models?: string[];
   passenger_harness_models?: string[]; // tandem only
   license_doc_filenames?: string[];
+  license_doc_paths?: string[];
+  avatar_storage_path?: string | null;
+  avatar_url?: string | null;
+  avatar_signed_url?: string | null;
 }
-
-// Dummy data (later replace with real fetch)
-// NOTE: Replace with server fetched data later
-const initialUsers: User[] = [
-  { id: 1, name: 'Lipo', email: 'lipo@example.com', role: 'Superadmin', status: 'Active', joined: '2023-01-15', phone: '+995 555 111', location: 'Tbilisi', about: 'Platform owner.' },
-  {
-    id: 2,
-    name: 'Giorgi',
-    email: 'giorgi@example.com',
-    role: 'Pilot (Tandem)',
-    pilot_kind: 'tandem',
-    status: 'Active',
-    joined: '2023-02-20',
-    phone: '+995 555 222',
-    location: 'Kutaisi',
-    about: 'Tandem pilot with 5 years experience.',
-    rating: 4.6,
-    experience_years: 5,
-    flights_count: 780,
-    wing_models: ['Ozone Swift 5', 'Nova Mentor 7'],
-    harness_models: ['SupAir Evo Lite'],
-    reserve_models: ['Gin Yeti'],
-    passenger_harness_models: ['Advance BiPro3'],
-    license_doc_filenames: ['tandem_cert_2023.pdf']
-  },
-  { id: 3, name: 'Ana', email: 'ana@example.com', role: 'User', status: 'Inactive', joined: '2023-03-10', phone: '+995 555 333', location: 'Batumi', about: 'Outdoor enthusiast.' },
-  {
-    id: 4,
-    name: 'Sandro',
-    email: 'sandro@example.com',
-    role: 'Pilot (Solo)',
-    pilot_kind: 'solo',
-    pilot_type: 'acro',
-    status: 'Pending',
-    joined: '2023-04-05',
-    phone: '+995 555 444',
-    location: 'Gudauri',
-    about: 'Solo pilot applicant.',
-    rating: 0,
-    experience_years: 1,
-    flights_count: 55,
-    wing_models: ['BGD Epic'],
-    harness_models: ['Woody Valley Wani2'],
-    reserve_models: ['Independence Ultra Cross'],
-    license_doc_filenames: ['solo_training_card.jpg']
-  },
-  { id: 5, name: 'Nino', email: 'nino@example.com', role: 'User', status: 'Active', joined: '2023-05-21', phone: '+995 555 555', location: 'Tbilisi', about: 'Traveler & photographer.' },
-  { id: 6, name: 'Mariam', email: 'mariam@example.com', role: 'User', status: 'Active', joined: '2023-06-11', phone: '+995 555 777', location: 'Rustavi', about: 'Loves paragliding.' },
-  {
-    id: 7,
-    name: 'Dato',
-    email: 'dato@example.com',
-    role: 'Pilot (Tandem)',
-    pilot_kind: 'tandem',
-    status: 'Active',
-    joined: '2023-07-02',
-    phone: '+995 555 888',
-    location: 'Kazbegi',
-    about: 'Mountain flights specialist.',
-    rating: 4.9,
-    experience_years: 8,
-    flights_count: 1120,
-    wing_models: ['Gin Fuse 3'],
-    harness_models: ['Skywalk Cruise'],
-    reserve_models: ['Sky Paragliders Metis'],
-    passenger_harness_models: ['Woody Valley X-Rated'],
-    license_doc_filenames: ['fuse_license.pdf']
-  },
-];
+// Initial empty state; will load from API
+const initialUsers: User[] = [];
 
 const UserManagement: React.FC = () => {
   // ---------------- State ----------------
   const [users, setUsers] = useState<User[]>(initialUsers);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  // Fullscreen image viewer (for avatar)
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
+  // Reject modal state
+  const [rejectUserId, setRejectUserId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState<string>('');
+  const [rejectSubmitting, setRejectSubmitting] = useState(false);
+  // Send message modal state
+  const [msgUserId, setMsgUserId] = useState<string | null>(null);
+  const [msgText, setMsgText] = useState<string>('');
+  const [msgSubmitting, setMsgSubmitting] = useState(false);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [sortKey, setSortKey] = useState<SortKey>('joined');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [editId, setEditId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Partial<User>>({});
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   // Confirmation modal state
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; onConfirm: (() => void) | null }>({ open: false, message: '', onConfirm: null });
 
   // For animated expand height
-  const expandRefs = useRef<Record<number, HTMLDivElement | null>>({});
-  const [animatingId, setAnimatingId] = useState<number | null>(null);
+  const expandRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [animatingId, setAnimatingId] = useState<string | null>(null);
 
   // ---------------- Derived Data ----------------
 
@@ -160,14 +109,14 @@ const UserManagement: React.FC = () => {
     };
 
     // Precompute indexes once per users change
-    const indexes = new Map<number, string>();
+  const indexes = new Map<string, string>();
     users.forEach(u => indexes.set(u.id, buildIndex(u)));
 
     const list = users.filter(u => {
       if (roleFilter && !u.role.toLowerCase().includes(roleFilter)) return false;
       if (statusFilter && u.status.toLowerCase() !== statusFilter) return false;
       if (!tokens.length) return true;
-      const idx = indexes.get(u.id)!;
+  const idx = indexes.get(u.id)!;
       // Every token must appear
       for (const t of tokens) {
         if (!idx.includes(t)) return false;
@@ -212,35 +161,35 @@ const UserManagement: React.FC = () => {
     </span>
   );
 
-  const toggleExpand = useCallback((id: number) => {
+  const toggleExpand = useCallback((id: string) => {
     setAnimatingId(id);
     setExpandedId(prev => prev === id ? null : id);
   }, []);
 
-  const toggleBlock = useCallback((id: number) => {
+  const toggleBlock = useCallback((id: string) => {
     setUsers(us => us.map(u => u.id === id ? ({ ...u, blocked: !u.blocked, status: !u.blocked ? 'Inactive' : 'Active' }) : u));
   }, []);
 
   // delete user (placed after cancelEdit declaration for dependency order)
-  const deleteUserRef = useRef<(id:number)=>void>();
-  deleteUserRef.current = (id:number) => {
+  const deleteUserRef = useRef<(id:string)=>void>();
+  deleteUserRef.current = (id:string) => {
     setUsers(us => us.filter(u => u.id !== id));
     setExpandedId(prev => prev === id ? null : prev);
     if (editId === id) cancelEdit();
   };
 
-  const approvePilot = useCallback((id: number) => {
+  const approvePilot = useCallback((id: string) => {
     setUsers(us => us.map(u => u.id === id ? ({ ...u, status: 'Active' }) : u));
     setExpandedId(id);
   }, []);
 
-  const rejectPilot = useCallback((id: number) => {
+  const rejectPilot = useCallback((id: string) => {
     setUsers(us => us.map(u => u.id === id ? ({ ...u, status: 'Rejected' }) : u));
     setExpandedId(id);
     if (editId === id) cancelEdit();
   }, [editId]);
 
-  const toggleUserOperator = useCallback((id: number) => {
+  const toggleUserOperator = useCallback((id: string) => {
     setUsers(us => us.map(u => {
       if (u.id !== id) return u;
       if (u.role === 'User') return { ...u, role: 'Operator' };
@@ -255,7 +204,7 @@ const UserManagement: React.FC = () => {
     setExpandedId(u.id);
   }, []);
 
-  const cancelEdit = useCallback(() => { setEditId(null); setEditDraft({}); }, []);
+  const cancelEdit = useCallback(() => { setEditId(null as any); setEditDraft({}); }, []);
 
   const saveEdit = useCallback(() => {
     if (editId == null) return;
@@ -306,12 +255,29 @@ const UserManagement: React.FC = () => {
   }, [animatingId, expandedId]);
 
   const renderDetails = (u: User) => {
-    const isEditing = editId === u.id;
+  const isEditing = editId === u.id;
     const isPilot = u.role.toLowerCase().includes('pilot');
   const pendingPilot = isPilot && u.status === 'Pending';
     const rejectedPilot = isPilot && u.status === 'Rejected';
     const tandem = u.pilot_kind === 'tandem' || u.role.toLowerCase().includes('tandem');
   const isUserType = (u.role === 'User' || u.role === 'Operator');
+    const openDoc = async (idx: number) => {
+      if (!u.license_doc_paths || !u.license_doc_paths[idx]) return;
+      try {
+        const res = await fetch('/api/register/pilot-basic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sign-doc', path: u.license_doc_paths[idx], expires: 600 }),
+        });
+        if (!res.ok) throw new Error(`Failed to sign URL (${res.status})`);
+        const json = await res.json();
+        const url = json.url as string;
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      } catch (e) {
+        // no toast utility here; keep silent or extend later
+        console.error(e);
+      }
+    };
     return (
       <div className={styles.detailsPanel}>
         {!isEditing && (
@@ -332,7 +298,20 @@ const UserManagement: React.FC = () => {
                 <div><span className={styles.detailLabel}>Experience (yrs):</span> {u.experience_years ?? '—'}</div>
                 <div><span className={styles.detailLabel}>Flights:</span> {u.flights_count ?? '—'}</div>
                 {tandem && <div><span className={styles.detailLabel}>Passenger Harnesses:</span> {(u.passenger_harness_models?.length ? u.passenger_harness_models.join(', ') : '—')}</div>}
-                {u.license_doc_filenames && <div><span className={styles.detailLabel}>Licenses:</span> {u.license_doc_filenames.join(', ')}</div>}
+                {u.license_doc_filenames && u.license_doc_filenames.length > 0 && (
+                  <div>
+                    <span className={styles.detailLabel}>Licenses:</span>
+                    <ul className={styles.fileList}>
+                      {u.license_doc_filenames.map((name, i) => (
+                        <li key={i}>
+                          <button type="button" className={styles.linkButton} onClick={() => openDoc(i)} title="Open document">
+                            {name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
             {isPilot && (
@@ -405,9 +384,35 @@ const UserManagement: React.FC = () => {
     );
   };
 
+  // Fetch users on mount
+  useEffect(() => {
+    let aborted = false;
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch('/api/register/pilot-basic', { method: 'GET', cache: 'no-store' });
+        if (!res.ok) throw new Error(`Failed to load users (${res.status})`);
+        const json = await res.json();
+        if (aborted) return;
+        const list = (json.users || []) as User[];
+        setUsers(list);
+      } catch (e: any) {
+        if (aborted) return;
+        setError(e?.message || 'Failed to load users');
+      } finally {
+        if (!aborted) setLoading(false);
+      }
+    };
+    load();
+    return () => { aborted = true; };
+  }, []);
+
   return (
     <div className={styles.container}>
       <div className={styles.header}><h2 className={styles.title}>User Management</h2></div>
+  {loading && <div className={styles.loading}>Loading users…</div>}
+      {error && <div className={styles.error}>Error: {error}</div>}
       <div className={styles.summaryBar}>
         <div className={styles.summaryItem}><span className={styles.summaryLabel}>Total</span><span className={styles.summaryValue}>{total}</span></div>
         <div className={styles.summaryItem}><span className={styles.summaryLabel}>Active</span><span className={styles.summaryValue}>{active}</span></div>
@@ -474,7 +479,11 @@ const UserManagement: React.FC = () => {
                       >
                         <span className={styles.chevron}></span>
                       </button>
-                      <div className={styles.avatar}>{u.name.charAt(0).toUpperCase()}</div>
+                      {u.avatar_signed_url ? (
+                        <img src={u.avatar_signed_url} alt={u.name} className={styles.avatarImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
+                      ) : (
+                        <div className={styles.avatar}>{u.name.charAt(0).toUpperCase()}</div>
+                      )}
                       <div>
                         <div className={styles.userName}>{u.name}
                           {u.role === 'Operator' && <span className={styles.badgeOperator}>OPERATOR</span>}
@@ -490,8 +499,12 @@ const UserManagement: React.FC = () => {
                   <td className={styles.actions}>
                     {u.status === 'Pending' && u.role.toLowerCase().includes('pilot') && (
                       <>
-                        <button className={styles.actionButton} onClick={(e) => { e.stopPropagation(); openConfirm(`Approve pilot ${u.name}?`, () => approvePilot(u.id)); }}>Approve</button>
-                        <button className={`${styles.actionButton} ${styles.deleteButton}`} onClick={(e) => { e.stopPropagation(); openConfirm(`Reject pilot ${u.name}?`, () => rejectPilot(u.id)); }}>Reject</button>
+                        <button className={styles.actionButton} onClick={(e) => { e.stopPropagation(); openConfirm(`Approve pilot ${u.name}?`, async () => {
+                          // Call API approve-user
+                          try { await fetch('/api/register/pilot-basic', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'approve-user', userId: u.id }) }); } catch {}
+                          approvePilot(u.id);
+                        }); }}>Approve</button>
+                        <button className={`${styles.actionButton} ${styles.deleteButton}`} onClick={(e) => { e.stopPropagation(); setRejectUserId(u.id); setRejectReason(''); }}>Reject</button>
                       </>
                     )}
                     {u.status !== 'Pending' && u.status !== 'Rejected' && (
@@ -502,6 +515,7 @@ const UserManagement: React.FC = () => {
                         { !(u.role === 'User' || u.role === 'Operator') && (
                           <button className={styles.actionButton} onClick={(e) => { e.stopPropagation(); startEdit(u); }}>Edit</button>
                         )}
+                        <button className={styles.actionButton} onClick={(e) => { e.stopPropagation(); setMsgUserId(u.id); setMsgText(''); }}>Message</button>
                         <button className={`${styles.actionButton} ${styles.deleteButton}`} onClick={(e) => { e.stopPropagation(); openConfirm(`Delete user ${u.name}? This cannot be undone.`, () => deleteUserRef.current && deleteUserRef.current(u.id)); }}>Delete</button>
                         <button className={styles.actionButton} onClick={(e) => { e.stopPropagation(); openConfirm(`${u.blocked ? 'Unblock' : 'Block'} ${u.name}?`, () => toggleBlock(u.id)); }}>{u.blocked ? 'Unblock' : 'Block'}</button>
                       </>
@@ -532,8 +546,12 @@ const UserManagement: React.FC = () => {
       <div className={styles.mobileList}>
         {filteredUsers.map(u => (
           <div key={u.id} className={styles.userCard}>
-            <div className={styles.cardHeader} onClick={() => toggleExpand(u.id)}>
-              <div className={styles.avatarLg}>{u.name.charAt(0).toUpperCase()}</div>
+              <div className={styles.cardHeader} onClick={() => toggleExpand(u.id)}>
+              {u.avatar_signed_url ? (
+                <img src={u.avatar_signed_url} alt={u.name} className={styles.avatarLgImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
+              ) : (
+                <div className={styles.avatarLg}>{u.name.charAt(0).toUpperCase()}</div>
+              )}
               <div className={styles.cardHeaderInfo}>
                 <div className={styles.cardName}>{u.name}{u.blocked && <span className={styles.badgeBlocked}>BLOCKED</span>}</div>
                 <div className={styles.cardEmail}>{u.email}</div>
@@ -556,6 +574,61 @@ const UserManagement: React.FC = () => {
               <button type="button" className={styles.primaryBtn} onClick={proceedConfirm}>Confirm</button>
             </div>
           </div>
+        </div>
+      )}
+      {rejectUserId && (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+          <div className={styles.modal}>
+            <div className={styles.modalBody}>
+              <div style={{fontWeight:600, marginBottom:'.5rem'}}>Reject verification</div>
+              <label style={{fontSize:'.7rem', fontWeight:600, color:'#475569'}}>Reason</label>
+              <textarea rows={4} style={{width:'100%', marginTop:'.35rem'}} value={rejectReason} onChange={(e)=>setRejectReason(e.target.value)} placeholder="Describe why the verification is rejected..." />
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.secondaryBtn} onClick={()=>{ if (!rejectSubmitting) setRejectUserId(null); }}>Cancel</button>
+              <button type="button" className={styles.primaryBtn} disabled={rejectSubmitting || !rejectReason.trim()} onClick={async ()=>{
+                if (!rejectUserId) return;
+                try {
+                  setRejectSubmitting(true);
+                  await fetch('/api/register/pilot-basic', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'reject-user', userId: rejectUserId, reason: rejectReason.trim() }) });
+                  rejectPilot(rejectUserId);
+                  setRejectUserId(null);
+                } finally {
+                  setRejectSubmitting(false);
+                }
+              }}>{rejectSubmitting ? 'Sending...' : 'Send & Reject'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {msgUserId && (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+          <div className={styles.modal}>
+            <div className={styles.modalBody}>
+              <div style={{fontWeight:600, marginBottom:'.5rem'}}>Send message</div>
+              <label style={{fontSize:'.7rem', fontWeight:600, color:'#475569'}}>Message</label>
+              <textarea rows={4} style={{width:'100%', marginTop:'.35rem'}} value={msgText} onChange={(e)=>setMsgText(e.target.value)} placeholder="Write a message to the user..." />
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.secondaryBtn} onClick={()=>{ if (!msgSubmitting) setMsgUserId(null); }}>Cancel</button>
+              <button type="button" className={styles.primaryBtn} disabled={msgSubmitting || !msgText.trim()} onClick={async ()=>{
+                if (!msgUserId) return;
+                try {
+                  setMsgSubmitting(true);
+                  await fetch('/api/register/pilot-basic', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'send-message', userId: msgUserId, text: msgText.trim() }) });
+                  setMsgUserId(null);
+                } finally {
+                  setMsgSubmitting(false);
+                }
+              }}>{msgSubmitting ? 'Sending...' : 'Send'}</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {viewerUrl && (
+        <div className={styles.imageOverlay} role="dialog" aria-modal="true" onClick={()=>setViewerUrl(null)}>
+          <button type="button" className={styles.imageClose} aria-label="Close" onClick={(e)=>{ e.stopPropagation(); setViewerUrl(null); }}>×</button>
+          <img src={viewerUrl} alt="Avatar preview" className={styles.image} onClick={(e)=> e.stopPropagation()} />
         </div>
       )}
     </div>

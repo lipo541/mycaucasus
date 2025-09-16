@@ -8,7 +8,7 @@ import { toast } from '../../lib/toast';
 import { InfoTip } from '../ui/InfoTip';
 import { MultiTextInput } from '../ui/MultiTextInput';
 import { Select } from '../ui/Select';
-import { uploadAvatar, uploadDocuments } from '@/lib/storage';
+import { uploadAvatar, uploadDocuments, removeStoragePaths } from '@/lib/storage';
 
 export function SoloPilotRegisterForm() {
   const supabase = createSupabaseBrowserClient();
@@ -68,9 +68,17 @@ export function SoloPilotRegisterForm() {
       const userId = session.user?.id;
       if (!userId) throw new Error('მიმდინარე მომხმარებელი ვერ მოიძებნა.');
 
-  const avatarRes = await uploadAvatar(userId, avatarFile);
-  const docsRes = await uploadDocuments(userId, licenseFiles);
+      // Fetch old metadata for cleanup
+      const { data: me } = await supabase.auth.getUser();
+      const md = (me.user?.user_metadata || {}) as any;
+      const oldAvatarPath = md.avatar_storage_path ? String(md.avatar_storage_path) : null;
+      const oldDocPaths: string[] = Array.isArray(md.license_doc_storage_paths) ? md.license_doc_storage_paths : [];
 
+      // Upload new media
+      const avatarRes = await uploadAvatar(userId, avatarFile);
+      const docsRes = await uploadDocuments(userId, licenseFiles);
+
+      // Overwrite and set status back to pending for re-review
       const { error: updErr } = await supabase.auth.updateUser({
         data: {
           role: 'pilot',
@@ -91,6 +99,13 @@ export function SoloPilotRegisterForm() {
         }
       });
       if (updErr) throw updErr;
+      // Clean old files once metadata points to the new ones
+      if (oldAvatarPath && oldAvatarPath !== avatarRes.path) {
+        await removeStoragePaths('avatars', [oldAvatarPath]);
+      }
+      if (oldDocPaths && oldDocPaths.length > 0) {
+        await removeStoragePaths('documents', oldDocPaths);
+      }
       toast.success('ვერიფიკაციის დასრულების მოთხოვნა გაგზავნილია. სტატუსი: "მოლოდინი".');
       router.push('/');
     } catch (err: any) {

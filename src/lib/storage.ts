@@ -1,5 +1,5 @@
 import { createSupabaseBrowserClient } from './supabaseClient';
-import { getBucket } from '@/config/storage';
+import { getBucket, type StorageBucketKey } from '@/config/storage';
 
 export type UploadResult = { path: string };
 
@@ -42,4 +42,23 @@ export async function getSignedAvatarUrl(path: string, expiresInSeconds = 60 * 6
   const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresInSeconds);
   if (error) throw error;
   return data.signedUrl;
+}
+
+// Remove multiple paths from a bucket (best-effort)
+export async function removeStoragePaths(bucketKey: StorageBucketKey, paths: string[]): Promise<void> {
+  if (!paths || paths.length === 0) return;
+  const supabase = createSupabaseBrowserClient();
+  const bucket = getBucket(bucketKey);
+  // Supabase remove accepts array of path strings
+  try {
+    const { error } = await supabase.storage.from(bucket).remove(paths);
+    // Ignore errors to avoid breaking UX; log to console for debugging
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('Failed to remove storage paths', { bucket, paths, error });
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn('Exception removing storage paths', e);
+  }
 }

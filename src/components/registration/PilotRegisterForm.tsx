@@ -7,7 +7,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { InfoTip } from '../ui/InfoTip';
 import { MultiTextInput } from '../ui/MultiTextInput';
-import { uploadAvatar, uploadDocuments } from '@/lib/storage';
+import { uploadAvatar, uploadDocuments, removeStoragePaths } from '@/lib/storage';
 
 export function PilotRegisterForm() {
   const supabase = createSupabaseBrowserClient();
@@ -81,11 +81,17 @@ export function PilotRegisterForm() {
       const userId = session.user?.id;
       if (!userId) throw new Error('მიმდინარე მომხმარებელი ვერ მოიძებნა.');
 
-      // Upload media
-  const avatarRes = await uploadAvatar(userId, avatarFile);
-  const docsRes = await uploadDocuments(userId, licenseFiles);
+      // Fetch current metadata to remove old storage files if present
+      const { data: me } = await supabase.auth.getUser();
+      const md = (me.user?.user_metadata || {}) as any;
+      const oldAvatarPath = md.avatar_storage_path ? String(md.avatar_storage_path) : null;
+      const oldDocPaths: string[] = Array.isArray(md.license_doc_storage_paths) ? md.license_doc_storage_paths : [];
 
-      // Update current logged-in user's metadata with storage paths
+      // Upload new media
+      const avatarRes = await uploadAvatar(userId, avatarFile);
+      const docsRes = await uploadDocuments(userId, licenseFiles);
+
+      // Overwrite full verification fields; set status back to pending
       const { error: updErr } = await supabase.auth.updateUser({
         data: {
           role: 'pilot',
@@ -107,6 +113,14 @@ export function PilotRegisterForm() {
         }
       });
       if (updErr) throw updErr;
+
+      // Best-effort: delete old files after successful update
+      if (oldAvatarPath && oldAvatarPath !== avatarRes.path) {
+        await removeStoragePaths('avatars', [oldAvatarPath]);
+      }
+      if (oldDocPaths && oldDocPaths.length > 0) {
+        await removeStoragePaths('documents', oldDocPaths);
+      }
       toast.success('ვერიფიკაციის დასრულების მოთხოვნა გაგზავნილია. სტატუსი განახლდა: "მოლოდინი".');
       router.push('/');
     } catch (err: any) {

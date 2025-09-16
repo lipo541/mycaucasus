@@ -10,7 +10,11 @@ const nextConfig = {
 			{ protocol: 'https', hostname: 'scontent.xx.fbcdn.net' } // Fallback direct FB CDN pattern
 		]
 	},
-	webpack: (config) => {
+	webpack: (config, { dev }) => {
+		// Avoid Windows-specific rename ENOENT issues by disabling FS cache in development
+		if (dev) {
+			config.cache = false;
+		}
 		const isRealtimeCritDep = (warning) => {
 			const message = typeof warning === 'string' ? warning : warning?.message || '';
 			let resource = typeof warning === 'object' && warning?.module?.resource ? warning.module.resource : '';

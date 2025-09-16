@@ -40,8 +40,13 @@ export function Header() {
 	const userName: string | undefined = (user?.user_metadata?.full_name as string | undefined) || (user?.user_metadata?.name as string | undefined);
 	const initial = (userName || userEmail || '').trim().charAt(0).toUpperCase();
 	const userStatus: string | undefined = (user?.user_metadata?.status as string | undefined);
-	const isInactive = userStatus === 'inactive';
-	const isPending = userStatus === 'pending';
+	const messages = Array.isArray((user?.user_metadata as any)?.messages) ? ((user?.user_metadata as any)?.messages as any[]) : [];
+	const unreadCount = messages.filter((m: any) => m && m.unread).length;
+	const statusLc = (userStatus || '').toLowerCase();
+	const isInactive = statusLc === 'inactive';
+	const isPending = statusLc === 'pending';
+	const isRejected = statusLc === 'rejected';
+	const isActive = statusLc === 'active';
 
 	// Detect coarse pointer (touch) to disable hover open/close logic on mobile
 	useEffect(() => {
@@ -293,6 +298,7 @@ export function Header() {
 									return next;
 								});
 							}}
+							style={{ position: 'relative' }}
 						>
 							{avatarUrl ? (
 								<span className="site-header__avatar" aria-hidden="true">
@@ -301,6 +307,12 @@ export function Header() {
 							) : (
 								<span className="site-header__avatar site-header__avatar--fallback" aria-hidden="true">{initial || 'U'}</span>
 							)}
+							{unreadCount > 0 && (
+								<span aria-label={`ჩატვლადი შეტყობინებები ${unreadCount}`}
+									style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px #fff' }}>
+									{unreadCount > 99 ? '99+' : unreadCount}
+								</span>
+							)}
 						</button>
 						{userMenuOpen && (
 							<ul
@@ -308,7 +320,7 @@ export function Header() {
 								role="menu"
 								style={{ position: 'fixed', top: userDropdownPos.top, right: userDropdownPos.right, marginTop: 0 }}
 							>
-								{isInactive && (
+								{(isInactive || isRejected) && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/verify/complete" role="menuitem" onClick={() => setUserMenuOpen(false)}>
 											<span className="lang-dropdown__label">დაასრულე ვერიფიკაცია</span>
@@ -320,6 +332,20 @@ export function Header() {
 										<button className="lang-dropdown__btn" type="button" disabled aria-disabled="true">
 											<span className="lang-dropdown__label">ვერიფიკაცია pending</span>
 										</button>
+									</li>
+								)}
+								{isActive && (
+									<li className="lang-dropdown__item" role="none">
+										<Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__label">დაშბორდი</span>
+										</Link>
+									</li>
+								)}
+								{messages.length > 0 && (
+									<li className="lang-dropdown__item" role="none">
+										<Link className="lang-dropdown__btn" href="/notifications" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__label">შეტყობინებები{unreadCount ? ` (${unreadCount})` : ''}</span>
+										</Link>
 									</li>
 								)}
 								<li className="lang-dropdown__item" role="none">
@@ -469,18 +495,34 @@ export function Header() {
 											aria-expanded={profileOpen}
 											onClick={() => setProfileOpen(o => !o)}
 										>
-											{avatarUrl ? (
-												<span className="site-nav__icon site-header__avatar-icon" aria-hidden="true">
+											<span className="site-nav__icon site-header__avatar-icon" aria-hidden="true" style={{ position: 'relative', display: 'inline-flex' }}>
+												{avatarUrl ? (
 													<Image src={avatarUrl} alt="" width={20} height={20} />
-												</span>
-											) : (
-												<span className="site-nav__icon site-header__avatar-icon site-header__avatar-icon--fallback" aria-hidden="true">{initial || 'U'}</span>
-											)}
+												) : (
+													<span className="site-header__avatar-icon site-header__avatar-icon--fallback" aria-hidden="true" style={{ width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>{initial || 'U'}</span>
+												)}
+												{unreadCount > 0 && (
+													<span aria-label={`ჩატვლადი შეტყობინებები ${unreadCount}`}
+														style={{ position: 'absolute', top: -4, right: -6, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 14, height: 14, padding: '0 3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, lineHeight: '14px', boxShadow: '0 0 0 2px #fff' }}>
+														{unreadCount > 99 ? '99+' : unreadCount}
+													</span>
+												)}
+											</span>
 											<span className="site-nav__label">პროფილი</span>
 											<span className="site-nav__spacer" />
 											<span className="site-nav__caret" aria-hidden="true" />
 										</button>
 										<ul className="site-nav__submenu site-nav__submenu--mobile" role="menu" aria-label="პროფილი">
+											{(isInactive || isRejected) && (
+												<li className="site-nav__subitem">
+													<Link href="/verify/complete" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
+														<span className="site-nav__icon" aria-hidden="true">
+															<svg viewBox="0 0 24 24" width={18} height={18} aria-hidden="true"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.2.9-5.5-4-3.9 5.5-.8L12 3z" fill="currentColor"/></svg>
+														</span>
+														<span className="site-nav__label">დაასრულე ვერიფიკაცია</span>
+													</Link>
+												</li>
+											)}
 											<li className="site-nav__subitem">
 												<Link href="/profile" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
 													<span className="site-nav__icon" aria-hidden="true">
@@ -489,6 +531,16 @@ export function Header() {
 													<span className="site-nav__label">დაფა</span>
 												</Link>
 											</li>
+											{messages.length > 0 && (
+												<li className="site-nav__subitem">
+													<Link href="/notifications" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
+														<span className="site-nav__icon" aria-hidden="true">
+															<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z" fill="currentColor"/></svg>
+														</span>
+														<span className="site-nav__label">შეტყობინებები{unreadCount ? ` (${unreadCount})` : ''}</span>
+													</Link>
+												</li>
+											)}
 											<li className="site-nav__subitem">
 												<Link href="/profile/settings" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
 													<span className="site-nav__icon" aria-hidden="true">

@@ -363,7 +363,7 @@ export function PilotBasicInfoForm(props: { onSubmit?: (data: PilotBasicInfoData
                 if (atBottom) setTermsScrollEnd(true);
               }}
             >
-              <p>Welcome to MyCaucasus. These Terms and Conditions ("Terms") govern your use of our platform and services. By registering and using the platform, you agree to these Terms.</p>
+              <p>Welcome to MyCaucasus. These Terms and Conditions (&quot;Terms&quot;) govern your use of our platform and services. By registering and using the platform, you agree to these Terms.</p>
               <h4>1. Eligibility and Responsibilities</h4>
               <ul>
                 <li>You confirm you are at least 16 years old and legally permitted to use our services.</li>
