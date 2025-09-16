@@ -39,6 +39,9 @@ export function Header() {
 	const userEmail: string | undefined = user?.email || (user?.user_metadata?.email as string | undefined);
 	const userName: string | undefined = (user?.user_metadata?.full_name as string | undefined) || (user?.user_metadata?.name as string | undefined);
 	const initial = (userName || userEmail || '').trim().charAt(0).toUpperCase();
+	const userStatus: string | undefined = (user?.user_metadata?.status as string | undefined);
+	const isInactive = userStatus === 'inactive';
+	const isPending = userStatus === 'pending';
 
 	// Detect coarse pointer (touch) to disable hover open/close logic on mobile
 	useEffect(() => {
@@ -305,6 +308,20 @@ export function Header() {
 								role="menu"
 								style={{ position: 'fixed', top: userDropdownPos.top, right: userDropdownPos.right, marginTop: 0 }}
 							>
+								{isInactive && (
+									<li className="lang-dropdown__item" role="none">
+										<Link className="lang-dropdown__btn" href="/verify/complete" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__label">დაასრულე ვერიფიკაცია</span>
+										</Link>
+									</li>
+								)}
+								{isPending && (
+									<li className="lang-dropdown__item" role="none">
+										<button className="lang-dropdown__btn" type="button" disabled aria-disabled="true">
+											<span className="lang-dropdown__label">ვერიფიკაცია pending</span>
+										</button>
+									</li>
+								)}
 								<li className="lang-dropdown__item" role="none">
 									<Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
 										<span className="lang-dropdown__label">პროფილი</span>

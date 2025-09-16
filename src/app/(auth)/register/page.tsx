@@ -16,13 +16,9 @@ export default function RegisterPage() {
             <span className={styles['register-choose__title']}>მომხმარებელი</span>
             <span className={styles['register-choose__desc']}>ჩვეულებრივი ექაუნთი ტურისტებისთვის და სტუმრებისთვის</span>
           </Link>
-          <Link href="/register/pilot" className={styles['register-choose__card']} aria-label="დარეგისტრირდი როგორც ტანდემ პილოტი">
-            <span className={styles['register-choose__title']}>ტანდემ პილოტი</span>
-            <span className={styles['register-choose__desc']}>მგზავრებთან ფრენები, ლიცენზიით და გამოცდილებით</span>
-          </Link>
-          <Link href="/register/pilot/solo" className={styles['register-choose__card']} aria-label="დარეგისტრირდი როგორც სოლო პილოტი">
-            <span className={styles['register-choose__title']}>სოლო პილოტი</span>
-            <span className={styles['register-choose__desc']}>პილოტებისთვის, ტანდემის გარეშე</span>
+          <Link href="/register/pilot" className={styles['register-choose__card']} aria-label="დარეგისტრირდი როგორც პილოტი">
+            <span className={styles['register-choose__title']}>პილოტი</span>
+            <span className={styles['register-choose__desc']}>პილოტის რეგისტრაცია (ძირითადი ინფორმაცია)</span>
           </Link>
         </div>
       </section>
