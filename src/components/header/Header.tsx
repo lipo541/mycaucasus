@@ -7,6 +7,8 @@ import { NavBar } from '../navigation/NavBar';
 import Image from 'next/image';
 import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { toast } from '../../lib/toast';
+import { onMessagesUpdated } from '@/lib/messagesBus';
+import { armSoundEngine } from '@/lib/sound';
 
 export function Header() {
 	const [scrolled, setScrolled] = useState(false);
@@ -32,6 +34,7 @@ export function Header() {
 	const userOpenModeRef = useRef<null | 'hover' | 'click'>(null);
 	const [userDropdownPos, setUserDropdownPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
 	const supabase = createSupabaseBrowserClient();
+	const lastUnreadRef = useRef<number>(-1);
 	// Mobile profile dropdown (burger menu) state
 	const [profileOpen, setProfileOpen] = useState(false);
 	// Derive avatar url & initial
@@ -61,11 +64,13 @@ export function Header() {
 	// Load session and subscribe to auth changes
 	useEffect(() => {
 		let mounted = true;
+		// Arm sound engine on first interaction so that future programmatic sounds are allowed by browsers
+		armSoundEngine();
 			supabase.auth.getSession().then(({ data: { session } }) => {
 			if (!mounted) return;
 			setUser(session?.user ?? null);
 		});
-		const { data: sub } = supabase.auth.onAuthStateChange(
+			const { data: sub } = supabase.auth.onAuthStateChange(
 			(event: AuthChangeEvent, session: Session | null) => {
 				setUser(session?.user ?? null);
 									// Do not toast on SIGNED_IN here; some browsers emit SIGNED_IN on tab focus/session refresh.
@@ -73,9 +78,70 @@ export function Header() {
 				if (!session) setUserMenuOpen(false);
 			}
 		);
+			// Subscribe to messages bus to update unread badge live
+					const off = onMessagesUpdated(({ unread }) => {
+				// Force a shallow update to trigger re-render of unread badge.
+				// We rely on user.user_metadata for base data; the badge overrides count reactively.
+				// Store count in a CSS variable friendly way via state or layout effect; here we re-render by updating a dummy state.
+					setUser((u) => {
+					if (!u) return u;
+					const md: any = u.user_metadata || {};
+					// Do not mutate original object; clone minimal wrapper
+					return {
+						...u,
+						user_metadata: { ...md, __unread_override: unread },
+					} as any;
+				});
+			});
 		return () => {
 			mounted = false;
 			sub.subscription.unsubscribe();
+				off();
+		};
+	}, [supabase]);
+
+	// Lightweight polling for new messages (until we move to a realtime table)
+	useEffect(() => {
+		let timer: number | null = null;
+		let disposed = false;
+		const POLL_MS = 25000;
+		const fetchMessages = async (refresh = false) => {
+			try {
+				if (refresh) {
+					await supabase.auth.refreshSession();
+				}
+				const { data: { user } } = await supabase.auth.getUser();
+				if (!user) return;
+				const md: any = user.user_metadata || {};
+				const msgs: any[] = Array.isArray(md.messages) ? md.messages : [];
+				const unread = msgs.reduce((acc, m) => acc + (m?.unread ? 1 : 0), 0);
+				if (unread !== lastUnreadRef.current) {
+					lastUnreadRef.current = unread;
+					// Trigger a re-render with override and broadcast
+					setUser((u) => (u ? ({ ...u, user_metadata: { ...(u.user_metadata as any), __unread_override: unread } } as any) : u));
+					// Do not emit full messages from header (unknown), only broadcast count via bus using messages null
+					// Note: NotificationsFeed will independently fetch full messages on bus event
+					try {
+						window.dispatchEvent(new CustomEvent('mc:messages', { detail: { messages: null, unread } } as any));
+						localStorage.setItem('mc:messages', JSON.stringify({ ts: Date.now(), unread }));
+					} catch {}
+				}
+			} catch {}
+		};
+		// First run quickly
+		fetchMessages(false);
+		// Polling interval
+		timer = window.setInterval(() => { fetchMessages(false); }, POLL_MS);
+		// Refresh on focus/visibility change
+		const onFocus = () => fetchMessages(true);
+		window.addEventListener('focus', onFocus);
+		const onVis = () => { if (document.visibilityState === 'visible') fetchMessages(true); };
+		document.addEventListener('visibilitychange', onVis);
+		return () => {
+			disposed = true;
+			if (timer) window.clearInterval(timer);
+			window.removeEventListener('focus', onFocus);
+			document.removeEventListener('visibilitychange', onVis);
 		};
 	}, [supabase]);
 
@@ -309,10 +375,10 @@ export function Header() {
 							) : (
 								<span className="site-header__avatar site-header__avatar--fallback" aria-hidden="true">{initial || 'U'}</span>
 							)}
-							{unreadCount > 0 && (
+							{((user?.user_metadata as any)?.__unread_override ?? unreadCount) > 0 && (
 								<span aria-label={`ჩატვლადი შეტყობინებები ${unreadCount}`}
 									style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px #fff' }}>
-									{unreadCount > 99 ? '99+' : unreadCount}
+									{(((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number) > 99 ? '99+' : ((user?.user_metadata as any)?.__unread_override ?? unreadCount)}
 								</span>
 							)}
 						</button>
@@ -346,7 +412,7 @@ export function Header() {
 								{messages.length > 0 && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/notifications" role="menuitem" onClick={() => setUserMenuOpen(false)}>
-											<span className="lang-dropdown__label">შეტყობინებები{unreadCount ? ` (${unreadCount})` : ''}</span>
+											<span className="lang-dropdown__label">შეტყობინებები{(((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number) ? ` (${(user?.user_metadata as any)?.__unread_override ?? unreadCount})` : ''}</span>
 										</Link>
 									</li>
 								)}
