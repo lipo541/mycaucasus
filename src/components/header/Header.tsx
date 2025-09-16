@@ -61,16 +61,16 @@ export function Header() {
 	// Load session and subscribe to auth changes
 	useEffect(() => {
 		let mounted = true;
-		supabase.auth.getSession().then(({ data: { session } }) => {
+			supabase.auth.getSession().then(({ data: { session } }) => {
 			if (!mounted) return;
 			setUser(session?.user ?? null);
 		});
 		const { data: sub } = supabase.auth.onAuthStateChange(
 			(event: AuthChangeEvent, session: Session | null) => {
 				setUser(session?.user ?? null);
-				if (event === 'SIGNED_IN') {
-					toast.success('ავტორიზაცია წარმატებულია');
-				}
+					if (event === 'SIGNED_IN') {
+						toast.once('auth_signed_in', 'success', 'ავტორიზაცია წარმატებულია', 10000);
+					}
 				if (!session) setUserMenuOpen(false);
 			}
 		);
@@ -200,7 +200,10 @@ export function Header() {
 		{ code: 'DE', label: 'Deutsch', cc: 'de' }
 	] as const;
 
-	return (
+		// Consume any flash on first paint (e.g., after redirect)
+		useEffect(() => { toast.flashConsume(); }, []);
+
+		return (
 		<>
 		<header ref={headerRef} className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
 			<div className="site-header__inner">

@@ -68,7 +68,7 @@ export default function Login() {
 			const userRole = user.user_metadata.role;
 
 			setSuccess(true);
-			toast.success('წარმატებით გაიარეთ ავტორიზაცია!');
+			toast.once('auth_login_success', 'success', 'წარმატებით გაიარეთ ავტორიზაცია!', 15000);
 
 			if (userRole === 'superadmin') {
 				router.push('/admin');

@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 // styles now provided via legacy-globals.css
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { menuItems } from './menuItems';
 import { IoPeople, IoLocationSharp, IoAirplane, IoSchool, IoFlask, IoShieldCheckmark, IoAlbums, IoConstruct, IoWarning, IoMap, IoChatbubbles, IoTrailSign, IoSunny, IoBusiness, IoHome, IoList, IoPodium, IoMedal, IoLayers, IoSnow, IoRefresh } from 'react-icons/io5';
@@ -75,14 +75,30 @@ export function NavBar({ lang, className = '', variant = 'desktop' }: NavBarProp
   const items = resolve(lang);
   const [openId, setOpenId] = useState<string | null>(null);
   const closeTimeout = useRef<number | null>(null);
+  // Restore open menu from session (preserve section on refresh)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('nav_open_id');
+      if (raw) setOpenId(raw);
+    } catch {}
+  }, []);
 
   const open = useCallback((id: string) => {
     if (closeTimeout.current) { window.clearTimeout(closeTimeout.current); closeTimeout.current = null; }
     setOpenId(id);
+    try { sessionStorage.setItem('nav_open_id', id); } catch {}
   }, []);
   const scheduleClose = useCallback(() => {
     if (closeTimeout.current) window.clearTimeout(closeTimeout.current);
-    closeTimeout.current = window.setTimeout(() => { setOpenId(o => (o ? null : o)); }, 160);
+    closeTimeout.current = window.setTimeout(() => {
+      setOpenId(o => {
+        if (o) {
+          try { sessionStorage.removeItem('nav_open_id'); } catch {}
+          return null;
+        }
+        return o;
+      });
+    }, 160);
   }, []);
 
   const isMobileVariant = variant === 'mobile';
@@ -113,7 +129,14 @@ export function NavBar({ lang, className = '', variant = 'desktop' }: NavBarProp
                         type="button"
                         className="site-nav__link site-nav__link--btn menu-panel__action"
                         aria-expanded={isOpen}
-                        onClick={() => setOpenId(o => (o === item.id ? null : item.id))}
+                        onClick={() => setOpenId(o => {
+                          const next = (o === item.id ? null : item.id);
+                          try {
+                            if (next) sessionStorage.setItem('nav_open_id', next);
+                            else sessionStorage.removeItem('nav_open_id');
+                          } catch {}
+                          return next;
+                        })}
                       >
                         <span className="site-nav__icon" aria-hidden="true">{iconFor(item.id)}</span>
                         {content}
