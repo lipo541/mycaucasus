@@ -143,8 +143,42 @@ export function NotificationsFeed() {
 
   return (
     <div className={styles.pageWrap}>
-      <div className={styles.pageHeader}>
-        <h1 className={styles.title}>შეტყობინებები</h1>
+      <div className={styles.contentContainer}>
+        <div className={styles.pageHeader}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/" className={styles.backBtn} title="მთავარ გვერდზე დაბრუნება">
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 12H5"/>
+              <path d="m12 19-7-7 7-7"/>
+            </svg>
+          </Link>
+          <h1 className={styles.title}>
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </h1>
+        </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
             onClick={() => {
@@ -221,8 +255,6 @@ export function NotificationsFeed() {
           ))}
         </ul>
       )}
-      <div className={styles.backLink}>
-        <Link href="/">← მთავარ გვერდზე დაბრუნება</Link>
       </div>
     </div>
   );
