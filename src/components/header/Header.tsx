@@ -68,9 +68,8 @@ export function Header() {
 		const { data: sub } = supabase.auth.onAuthStateChange(
 			(event: AuthChangeEvent, session: Session | null) => {
 				setUser(session?.user ?? null);
-					if (event === 'SIGNED_IN') {
-						toast.once('auth_signed_in', 'success', 'ავტორიზაცია წარმატებულია', 10000);
-					}
+									// Do not toast on SIGNED_IN here; some browsers emit SIGNED_IN on tab focus/session refresh.
+									// Success toasts are shown via flash after explicit login/registration flows only.
 				if (!session) setUserMenuOpen(false);
 			}
 		);
@@ -200,7 +199,7 @@ export function Header() {
 		{ code: 'DE', label: 'Deutsch', cc: 'de' }
 	] as const;
 
-		// Consume any flash on first paint (e.g., after redirect)
+			// Consume any flash on first paint (e.g., after redirect)
 		useEffect(() => { toast.flashConsume(); }, []);
 
 		return (
@@ -360,7 +359,14 @@ export function Header() {
 									<button
 										className="lang-dropdown__btn"
 										role="menuitem"
-										onClick={async () => { await supabase.auth.signOut(); setUserMenuOpen(false); toast.info('გასვლა შესრულდა'); }}
+																				onClick={async () => {
+																					const ok = window.confirm('დაადასტურე გასვლა?');
+																					if (!ok) return;
+																					await supabase.auth.signOut();
+																					setUserMenuOpen(false);
+																					toast.info('გასვლა შესრულდა');
+																					window.location.assign('/login');
+																				}}
 										type="button"
 									>
 										<span className="lang-dropdown__label">გასვლა</span>
@@ -572,7 +578,14 @@ export function Header() {
 							</Link>
 						) : (
 							<>
-								<button className="menu-panel__action" type="button" onClick={async ()=>{ await supabase.auth.signOut(); setBurgerOpen(false); toast.info('გასვლა შესრულდა'); }}>
+																<button className="menu-panel__action" type="button" onClick={async ()=>{
+																	const ok = window.confirm('დაადასტურე გასვლა?');
+																	if (!ok) return;
+																	await supabase.auth.signOut();
+																	setBurgerOpen(false);
+																	toast.info('გასვლა შესრულდა');
+																	window.location.assign('/login');
+																}}>
 									<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
 									<span>გასვლა</span>
 								</button>

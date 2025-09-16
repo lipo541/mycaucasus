@@ -68,7 +68,8 @@ export default function Login() {
 			const userRole = user.user_metadata.role;
 
 			setSuccess(true);
-			toast.once('auth_login_success', 'success', 'წარმატებით გაიარეთ ავტორიზაცია!', 15000);
+			// Set a one-time flash; Header will consume it after redirect
+			toast.flashSet('success', 'წარმატებით გაიარეთ ავტორიზაცია!');
 
 			if (userRole === 'superadmin') {
 				router.push('/admin');

@@ -194,19 +194,21 @@ export default function Dashboard() {
 		setSidebarOpen(!isSidebarOpen);
 	};
 
-	const handleSignOut = async () => {
-		if (signingOut) return;
-		setSigningOut(true);
-		try {
-			const { error } = await supabase.auth.signOut();
-			if (error) throw error;
-			toast.success('Logged out');
-			router.push('/login');
-		} catch (err: any) {
-			toast.error(err?.message || 'Failed to sign out');
-			setSigningOut(false); // allow retry
-		}
-	};
+		const handleSignOut = async () => {
+			if (signingOut) return;
+			const ok = window.confirm('დაადასტურე გასვლა?');
+			if (!ok) return;
+			setSigningOut(true);
+			try {
+				const { error } = await supabase.auth.signOut();
+				if (error) throw error;
+				toast.success('Logged out');
+				router.push('/login');
+			} catch (err: any) {
+				toast.error(err?.message || 'Failed to sign out');
+				setSigningOut(false); // allow retry
+			}
+		};
 
 	const goHome = () => {
 		router.push('/');
