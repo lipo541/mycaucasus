@@ -208,7 +208,7 @@ export async function GET(req: Request) {
     const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!SUPABASE_URL || !SERVICE_KEY) {
-      return NextResponse.json({ error: 'Server is misconfigured (Supabase env missing).' }, { status: 500 });
+      return NextResponse.json({ error: 'Server is misconfigured (Supabase env missing). Ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in Vercel Project Settings > Environment Variables.' }, { status: 500 });
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -217,8 +217,8 @@ export async function GET(req: Request) {
     const page = Number(searchParams.get('page') || '1');
     const perPage = Number(searchParams.get('perPage') || '100');
 
-    const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage });
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage });
+  if (error) return NextResponse.json({ error: `Supabase listUsers failed: ${error.message}` }, { status: 400 });
     const users = (data?.users || data?.data || []) as any[];
 
     const mapped = await Promise.all(users.map(async (u: any) => {

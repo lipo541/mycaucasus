@@ -398,8 +398,12 @@ const UserManagement: React.FC = () => {
         setLoading(true);
         setError(null);
         const res = await fetch('/api/register/pilot-basic', { method: 'GET', cache: 'no-store' });
-        if (!res.ok) throw new Error(`Failed to load users (${res.status})`);
-        const json = await res.json();
+        let json: any = null;
+        try { json = await res.json(); } catch {}
+        if (!res.ok) {
+          const msg = json?.error ? `Failed to load users (${res.status}): ${json.error}` : `Failed to load users (${res.status})`;
+          throw new Error(msg);
+        }
         if (aborted) return;
         const list = (json.users || []) as User[];
         setUsers(list);

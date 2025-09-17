@@ -1,7 +1,3 @@
-// Lightweight toast event bus + helpers.
-// - toast.emit: dispatches a global CustomEvent consumed by the UI Toaster
-// - toast.once: deduplicates the same toast key within a TTL (sessionStorage)
-// - toast.flashSet/flashConsume: pass a one-time toast across a redirect
 export type ToastType = 'success' | 'error' | 'info';
 
 const BUS_EVENT = 'app_toast_event';
@@ -24,7 +20,6 @@ export const toast = {
   /**
    * Show a toast only once for a given key within optional TTL (ms).
    * Uses sessionStorage so it resets after the tab is closed.
-   * Example: toast.once('auth_signed_in', 'success', 'ავტორიზაცია წარმატებულია', 10_000)
    */
   once(key: string, type: ToastType, message: string, ttlMs: number = 10_000) {
     if (typeof window === 'undefined') return;
@@ -45,7 +40,6 @@ export const toast = {
   },
   /**
    * Flash helpers: set/read one-time messages across redirects using sessionStorage.
-   * Usage: call flashSet before redirect, then flashConsume on the landing page.
    */
   flashSet(type: ToastType, message: string) {
     if (typeof window === 'undefined') return;
