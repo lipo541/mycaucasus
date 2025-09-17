@@ -148,22 +148,50 @@ const RecentActivity = () => {
 const DashboardWidgets = () => {
 	const [loading, setLoading] = useState(true);
 	const [stats, setStats] = useState<Array<StatCardProps>>([]);
+	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setStats([
-				{ title: 'Total Users', value: 1250, icon: <UsersIcon />, change: '+12.5%', changeType: 'positive' },
-				{ title: 'Tandem Pilots', value: 45, icon: <TandemPilotIcon />, change: '+1', changeType: 'positive' },
-				{ title: 'Solo Pilots', value: 40, icon: <SoloPilotIcon />, change: '+1', changeType: 'positive' },
-				{ title: 'Pending Users', value: 3, icon: <PendingUserIcon />, change: '0', changeType: 'positive' },
-				{ title: 'Pending Content', value: 12, icon: <ContentIcon />, change: '-3', changeType: 'negative' },
-				{ title: 'Active Sessions', value: 312, icon: <SessionsIcon />, change: '+5.8%', changeType: 'positive' },
-				{ title: 'Total Locations', value: 158, icon: <LocationIcon />, change: '+10', changeType: 'positive' },
-				{ title: 'Total News', value: 76, icon: <NewsIcon />, change: '+5', changeType: 'positive' }
-			]);
-			setLoading(false);
-		}, 600);
-		return () => clearTimeout(timer);
+		let cancelled = false;
+		async function load() {
+			try {
+				const res = await fetch('/api/admin/stats', { cache: 'no-store' });
+				if (!res.ok) throw new Error('Request failed');
+				const data = await res.json();
+				if (!data.ok) throw new Error(data.error || 'Bad response');
+				if (cancelled) return;
+				const s = data.stats;
+				setStats([
+					{ title: 'Total Users', value: s.totalUsers, icon: <UsersIcon />, change: '+0%', changeType: 'positive' },
+					{ title: 'Tandem Pilots', value: s.tandemPilots, icon: <TandemPilotIcon />, change: '+0', changeType: 'positive' },
+					{ title: 'Solo Pilots', value: s.soloPilots, icon: <SoloPilotIcon />, change: '+0', changeType: 'positive' },
+					{ title: 'Pending Users', value: s.pendingUsers, icon: <PendingUserIcon />, change: s.pendingUsers.toString(), changeType: 'positive' },
+					{ title: 'Pending Content', value: s.pendingContent, icon: <ContentIcon />, change: s.pendingContent.toString(), changeType: s.pendingContent > 0 ? 'negative' : 'positive' },
+					{ title: 'Active Sessions', value: s.activeSessions, icon: <SessionsIcon />, change: '+0%', changeType: 'positive' },
+					{ title: 'Total Locations', value: s.totalLocations, icon: <LocationIcon />, change: '+0', changeType: 'positive' },
+					{ title: 'Total News', value: s.totalNews, icon: <NewsIcon />, change: '+0', changeType: 'positive' }
+				]);
+			} catch (e) {
+				console.warn('[DashboardWidgets] stats fetch failed, using fallback', (e as Error).message);
+				if (!cancelled) {
+					setError('Failed loading live stats');
+					// fallback static placeholder
+					setStats([
+						{ title: 'Total Users', value: 0, icon: <UsersIcon /> },
+						{ title: 'Tandem Pilots', value: 0, icon: <TandemPilotIcon /> },
+						{ title: 'Solo Pilots', value: 0, icon: <SoloPilotIcon /> },
+						{ title: 'Pending Users', value: 0, icon: <PendingUserIcon /> },
+						{ title: 'Pending Content', value: 0, icon: <ContentIcon /> },
+						{ title: 'Active Sessions', value: 0, icon: <SessionsIcon /> },
+						{ title: 'Total Locations', value: 0, icon: <LocationIcon /> },
+						{ title: 'Total News', value: 0, icon: <NewsIcon /> }
+					]);
+				}
+			} finally {
+				if (!cancelled) setLoading(false);
+			}
+		}
+		load();
+		return () => { cancelled = true; };
 	}, []);
 
 	const skeletonStats: StatCardProps[] = new Array(8).fill(null).map((_, i) => ({
@@ -177,6 +205,7 @@ const DashboardWidgets = () => {
 
 	return (
 		<div className={styles.dashboardGrid} aria-live="polite">
+			{error && <div style={{gridColumn:'1/-1', color:'#f87171', fontSize:'.75rem'}}>⚠ {error} (using fallback)</div>}
 			<div className={styles.cardsContainer}>
 				{list.map(stat => (
 					<StatCard key={stat.title} {...stat} />
