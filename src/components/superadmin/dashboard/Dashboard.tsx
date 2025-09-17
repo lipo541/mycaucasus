@@ -10,12 +10,12 @@ import UserManagement from './usermanagement/UserManagement';
 import AddLocation from './addlocation/Addlocation';
 
 const iconMap: Record<string, React.ReactNode> = {
-	'Dashboard': <span className={styles.icon}>📊</span>,
-	'User Management': <span className={styles.icon}>👥</span>,
-	'Add Location': <span className={styles.icon}>📍</span>,
-	'Content': <span className={styles.icon}>📝</span>,
-	'Moderation': <span className={styles.icon}>🛡️</span>,
-	'Settings': <span className={styles.icon}>⚙️</span>,
+	'Dashboard': <span className={styles.icon}>◉</span>,
+	'User Management': <span className={styles.icon}>◈</span>,
+	'Add Location': <span className={styles.icon}>⬢</span>,
+	'Content': <span className={styles.icon}>◼</span>,
+	'Moderation': <span className={styles.icon}>◆</span>,
+	'Settings': <span className={styles.icon}>◉</span>,
 };
 
 const Sidebar = ({
@@ -83,23 +83,6 @@ const Sidebar = ({
 		</aside>
 	);
 };
-
-const TopBar = ({ toggleSidebar }: { toggleSidebar: () => void }) => (
-	<header className={styles.topbar}>
-		<div className={styles.topbarLeft}>
-			<button onClick={toggleSidebar} className={styles.menuButton}>
-				☰
-			</button>
-			<span className={styles.logo}>MyCaucasus</span>
-		</div>
-		<div className={styles.topbarRight}>
-			<input type="search" placeholder="Search..." className={styles.searchInput} />
-			<div className={styles.profile}>
-				<span>SA</span>
-			</div>
-		</div>
-	</header>
-);
 
 export default function Dashboard() {
 	const [ isSidebarOpen, setSidebarOpen ] = useState(true); // Sidebar is open by default on desktop
@@ -243,9 +226,19 @@ export default function Dashboard() {
 				sidebarRef={sidebarRef}
 			/>
 			<div className={styles.mainContent}>
-				<TopBar toggleSidebar={toggleSidebar} />
+				<div className={styles.mobileHeader}>
+					<button onClick={toggleSidebar} className={styles.menuButton} aria-label="Open sidebar">
+						☰
+					</button>
+					<h1 className={styles.pageTitle}>
+						{activeLink === 'Dashboard' ? 'Dashboard' : 
+						 activeLink === 'User Management' ? 'User Management' :
+						 activeLink === 'Add Location' ? 'Add Location' :
+						 activeLink}
+					</h1>
+				</div>
 				<main className={styles.contentArea}>
-					<div style={{ marginTop: activeLink === 'Add Location' ? '0' : '2rem', padding: activeLink === 'Add Location' ? '0' : undefined }}>
+					<div style={{ marginTop: activeLink === 'Add Location' ? '0' : '0', padding: activeLink === 'Add Location' ? '0' : undefined }}>
 						{renderContent()}
 					</div>
 				</main>

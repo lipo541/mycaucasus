@@ -24,19 +24,11 @@
 	gap: .75rem;
 	padding: 1.15rem 1.15rem 1rem;
 	border-radius: 18px;
-	background: linear-gradient(145deg,#ffffff 0%,#f1f5f9 60%,#e2e8f0 100%);
-	border: 1px solid #e2e8f0;
-	box-shadow: 0 2px 4px rgba(15,23,42,.05), 0 4px 18px -8px rgba(15,23,42,.15);
+	background: rgba(255,255,255,0.05); /* Dark theme background */
+	border: 1px solid rgba(255,255,255,0.1);
+	box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 4px 18px -8px rgba(0,0,0,0.4);
 	transition: transform .4s cubic-bezier(.34,1.56,.4,1), box-shadow .35s ease, background .4s ease;
 	overflow: hidden;
-}
-
-@media (prefers-color-scheme: dark) {
-	.card {
-		background: linear-gradient(150deg,#0f172a 0%,#1e293b 55%,#334155 100%);
-		border: 1px solid rgba(255,255,255,.07);
-		box-shadow: 0 2px 4px rgba(0,0,0,.4), 0 6px 26px -10px rgba(0,0,0,.55);
-	}
 }
 
 .card::before {
@@ -52,8 +44,9 @@
 .card:hover::before { opacity: 1; }
 
 .card:hover {
-	transform: translateY(-6px) scale(1.015);
-	box-shadow: 0 6px 16px -2px rgba(15,23,42,.12), 0 14px 38px -12px rgba(15,23,42,.22);
+	transform: translateY(-3px) scale(1.01); /* More subtle effect */
+	box-shadow: 0 6px 16px -2px rgba(0,0,0,0.4), 0 14px 38px -12px rgba(0,0,0,0.5);
+	background: rgba(255,255,255,0.08); /* Slightly brighter on hover */
 }
 
 .card:focus-within {
@@ -75,9 +68,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: linear-gradient(135deg,#3b82f6,#1d4ed8);
-	color: #fff;
-	box-shadow: 0 4px 12px -2px rgba(59,130,246,.55);
+	background: linear-gradient(135deg, #374151, #1f2937);
+	color: #d1d5db;
+	box-shadow: 0 4px 12px -2px rgba(55, 65, 81, 0.4);
 	flex-shrink: 0;
 	position: relative;
 	isolation: isolate;
@@ -107,13 +100,11 @@
 	letter-spacing: .07em;
 	text-transform: uppercase;
 	margin: 0;
-	color: #475569;
+	color: #94a3b8; /* Light grey for dark theme */
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-
-@media (prefers-color-scheme: dark) { .cardTitle { color:#94a3b8; } }
 
 .cardValueWrap {
 	display: flex;
@@ -126,26 +117,24 @@
 	font-size: 2rem;
 	line-height: 1;
 	font-weight: 600;
-	color: #0f172a;
+	color: #f1f5f9; /* Light text for dark theme */
 	margin: .15rem 0 0;
 	letter-spacing: -1px;
 }
-@media (prefers-color-scheme: dark) { .cardValue { color:#f1f5f9; } }
 
 .cardChange {
 	font-size: .75rem;
 	font-weight: 600;
 	padding: .35rem .55rem;
-	border-radius: 999px;
-	background: #f1f5f9;
-	color: #334155;
+	border-radius: 12px; /* More rounded */
+	background: rgba(255,255,255,0.08); /* Dark theme background */
+	color: #cbd5e1;
 	display: inline-flex;
 	align-items: center;
 	gap: .25rem;
 	line-height: 1;
 	margin-top: .25rem;
 }
-@media (prefers-color-scheme: dark) { .cardChange { background:#1e293b; color:#cbd5e1; } }
 
 .positive { color:#059669; }
 .negative { color:#dc2626; }
@@ -160,16 +149,13 @@
 
 /* Chart & Activity sections modernized */
 .panel {
-	background: linear-gradient(145deg,#ffffff,#f1f5f9);
-	border: 1px solid #e2e8f0;
+	background: rgba(255,255,255,0.05); /* Dark theme background */
+	border: 1px solid rgba(255,255,255,0.1);
 	border-radius: 20px;
 	padding: 1.6rem 1.5rem 1.7rem;
-	box-shadow: 0 2px 4px rgba(15,23,42,.05), 0 10px 32px -14px rgba(15,23,42,.18);
+	box-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 10px 32px -14px rgba(0,0,0,0.4);
 	position: relative;
 	overflow: hidden;
-}
-@media (prefers-color-scheme: dark) {
-	.panel { background: linear-gradient(160deg,#0f172a,#1e293b 60%,#334155); border:1px solid rgba(255,255,255,.07); }
 }
 
 .panelHeader {
@@ -177,43 +163,56 @@
 	font-size: .95rem;
 	font-weight: 600;
 	letter-spacing: .3px;
-	color: #0f172a;
+	color: #e2e8f0; /* Light text for dark theme */
 }
-@media (prefers-color-scheme: dark) { .panelHeader { color:#e2e8f0; } }
 
 .chartPlaceholder {
 	height: 260px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: 1px dashed #cbd5e1;
+	border: 1px dashed rgba(255,255,255,0.2); /* Dark theme border */
 	border-radius: 14px;
 	font-size: .8rem;
-	color: #64748b;
-	background: repeating-linear-gradient(45deg,#f8fafc,#f8fafc 10px,#f1f5f9 10px,#f1f5f9 20px);
+	color: #94a3b8; /* Light text */
+	background: repeating-linear-gradient(45deg,rgba(255,255,255,0.02),rgba(255,255,255,0.02) 10px,rgba(255,255,255,0.01) 10px,rgba(255,255,255,0.01) 20px);
 }
-@media (prefers-color-scheme: dark) { .chartPlaceholder { background: repeating-linear-gradient(45deg,#1e293b,#1e293b 10px,#0f172a 10px,#0f172a 20px); border-color:#334155; color:#94a3b8; } }
 
 .activityList { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.85rem; }
 .activityItem { display:flex; align-items:center; gap:.85rem; }
-.activityAvatar { width:42px; height:42px; border-radius:14px; background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-weight:600; color:#475569; font-size:.8rem; }
-@media (prefers-color-scheme: dark) { .activityAvatar { background:#1e293b; color:#cbd5e1; } }
-.activityText { font-size:.8rem; color:#334155; margin:0; }
+.activityAvatar { 
+	width:42px; 
+	height:42px; 
+	border-radius:14px; 
+	background: rgba(255,255,255,0.08); /* Dark theme background */
+	display:flex; 
+	align-items:center; 
+	justify-content:center; 
+	font-weight:600; 
+	color:#cbd5e1; /* Light text */
+	font-size:.8rem; 
+}
+.activityText { 
+	font-size:.8rem; 
+	color:#e2e8f0; /* Light text for dark theme */
+	margin:0; 
+}
 .activityText strong { font-weight:600; }
-@media (prefers-color-scheme: dark) { .activityText { color:#e2e8f0; } }
-.activityTime { font-size:.65rem; color:#64748b; margin:.2rem 0 0; }
-@media (prefers-color-scheme: dark) { .activityTime { color:#94a3b8; } }
+.activityTime { 
+	font-size:.65rem; 
+	color:#94a3b8; /* Light grey for dark theme */
+	margin:.2rem 0 0; 
+}
 
 /* Skeleton shimmer */
 .skeleton {
 	position: relative;
 	overflow: hidden;
-	background: linear-gradient(120deg,#e2e8f0 30%,#f1f5f9 38%,#e2e8f0 46%);
+	background: linear-gradient(120deg,rgba(255,255,255,0.05) 30%,rgba(255,255,255,0.1) 38%,rgba(255,255,255,0.05) 46%);
 	background-size:200% 100%;
 	animation: shimmer 1.8s ease-in-out infinite;
 	border-radius: 10px;
 }
-@media (prefers-color-scheme: dark) { .skeleton { background: linear-gradient(120deg,#1e293b 30%,#334155 38%,#1e293b 46%); } }
 
 @keyframes shimmer {
 	0% { background-position: 200% 0; }

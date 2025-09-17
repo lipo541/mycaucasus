@@ -24,6 +24,63 @@ export async function POST(req: Request) {
       return NextResponse.json({ url: data.signedUrl, expiresIn: expires });
     }
 
+    // Action: send-global-messages (append a message to many users by audience)
+    if (body?.action === 'send-global-messages') {
+      const { text, audience } = body || {};
+      if (!text || !audience) return NextResponse.json({ error: 'Missing text or audience' }, { status: 400 });
+      const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (!SUPABASE_URL || !SERVICE_KEY) return NextResponse.json({ error: 'Server Supabase env missing' }, { status: 500 });
+      const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+      // Fetch users by pages (cap pages to avoid timeouts)
+      const perPage = 200;
+      const maxPages = 10; // up to 2000 users per call
+      const allUsers: any[] = [];
+      for (let page = 1; page <= maxPages; page++) {
+        const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage });
+        if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+        const list = (data?.users || data?.data || []) as any[];
+        allUsers.push(...list);
+        if (!list.length || (data && (data as any).total && allUsers.length >= (data as any).total)) break;
+      }
+
+      // Filter by audience
+      const shouldInclude = (u: any) => {
+        const md = (u?.user_metadata || {}) as any;
+        const role = String(md.role || '').toLowerCase();
+        const pilotKind = String(md.pilot_kind || '').toLowerCase();
+        if (audience === 'everyone') return true;
+        if (audience === 'users') return role === 'user' || role === '' || (!role && !md.role);
+        if (audience === 'pilots') return role === 'pilot';
+        if (audience === 'solo') return role === 'pilot' && pilotKind === 'solo';
+        if (audience === 'tandem') return role === 'pilot' && pilotKind === 'tandem';
+        return false;
+      };
+
+      const targets = allUsers.filter(shouldInclude);
+      const msg = {
+        id: `${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
+        type: 'admin',
+        text: String(text),
+        from: 'superadmin',
+        unread: true,
+        created_at: new Date().toISOString(),
+      };
+
+      // Batch updates sequentially (keep it simple); in real world, parallel with limits.
+      let updated = 0;
+      for (const u of targets) {
+        const md = (u?.user_metadata || {}) as any;
+        const messages = Array.isArray(md.messages) ? md.messages : [];
+        const newMd = { ...md, messages: [msg, ...messages] };
+        const { error: updErr } = await (admin as any).auth.admin.updateUserById(u.id, { user_metadata: newMd });
+        if (!updErr) updated++;
+      }
+
+      return NextResponse.json({ ok: true, updated, total: targets.length });
+    }
+
     // Action: reject-user (set status=rejected and append message)
     if (body?.action === 'reject-user') {
       const { userId, reason } = body || {};

@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { toast } from '@/lib/toast';
 import styles from './UserManagement.module.css';
 
 // Sortable column keys
@@ -69,6 +70,11 @@ const UserManagement: React.FC = () => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   // Confirmation modal state
   const [confirmState, setConfirmState] = useState<{ open: boolean; message: string; onConfirm: (() => void) | null }>({ open: false, message: '', onConfirm: null });
+  // Global message state
+  const [globalOpen, setGlobalOpen] = useState(false);
+  const [globalText, setGlobalText] = useState('');
+  const [globalSubmitting, setGlobalSubmitting] = useState(false);
+  const [globalAudience, setGlobalAudience] = useState<'everyone'|'users'|'pilots'|'solo'|'tandem'>('everyone');
 
   // For animated expand height
   const expandRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -410,7 +416,15 @@ const UserManagement: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}><h2 className={styles.title}>User Management</h2></div>
+      <div className={styles.globalBar}>
+        <button
+          type="button"
+          className={styles.primaryBtn}
+          onClick={() => { setGlobalOpen(true); setGlobalText(''); setGlobalAudience('everyone'); }}
+        >
+          Create global message
+        </button>
+      </div>
   {loading && <div className={styles.loading}>Loading users…</div>}
       {error && <div className={styles.error}>Error: {error}</div>}
       <div className={styles.summaryBar}>
@@ -629,6 +643,49 @@ const UserManagement: React.FC = () => {
         <div className={styles.imageOverlay} role="dialog" aria-modal="true" onClick={()=>setViewerUrl(null)}>
           <button type="button" className={styles.imageClose} aria-label="Close" onClick={(e)=>{ e.stopPropagation(); setViewerUrl(null); }}>×</button>
           <img src={viewerUrl} alt="Avatar preview" className={styles.image} onClick={(e)=> e.stopPropagation()} />
+        </div>
+      )}
+      {globalOpen && (
+        <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+          <div className={styles.modal} style={{maxWidth: 560}}>
+            <div className={styles.modalBody}>
+              <div style={{fontWeight:600, marginBottom:'.75rem'}}>Create global message</div>
+              <label style={{fontSize:'.7rem', fontWeight:600, color:'#475569'}}>Message</label>
+              <textarea rows={4} style={{width:'100%', marginTop:'.35rem'}} value={globalText} onChange={(e)=>setGlobalText(e.target.value)} placeholder="Write a message to send..." />
+              <div style={{marginTop:'1rem'}}>
+                <div style={{fontSize:'.7rem', fontWeight:600, color:'#475569', marginBottom:'.4rem'}}>Audience</div>
+                <div className={styles.audienceGrid}>
+                  <label className={styles.radioRow}><input type="radio" name="aud" value="everyone" checked={globalAudience==='everyone'} onChange={()=>setGlobalAudience('everyone')} /> Everyone</label>
+                  <label className={styles.radioRow}><input type="radio" name="aud" value="pilots" checked={globalAudience==='pilots'} onChange={()=>setGlobalAudience('pilots')} /> Pilots (Solo + Tandem)</label>
+                  <label className={styles.radioRow}><input type="radio" name="aud" value="solo" checked={globalAudience==='solo'} onChange={()=>setGlobalAudience('solo')} /> Solo Pilots</label>
+                  <label className={styles.radioRow}><input type="radio" name="aud" value="tandem" checked={globalAudience==='tandem'} onChange={()=>setGlobalAudience('tandem')} /> Tandem Pilots</label>
+                  <label className={styles.radioRow}><input type="radio" name="aud" value="users" checked={globalAudience==='users'} onChange={()=>setGlobalAudience('users')} /> Users</label>
+                </div>
+              </div>
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.secondaryBtn} onClick={()=>{ if (!globalSubmitting) setGlobalOpen(false); }}>Cancel</button>
+              <button type="button" className={styles.primaryBtn} disabled={globalSubmitting || !globalText.trim()} onClick={async ()=>{
+                try {
+                  setGlobalSubmitting(true);
+                  const res = await fetch('/api/register/pilot-basic', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'send-global-messages', text: globalText.trim(), audience: globalAudience }) });
+                  const json = await res.json().catch(()=>({}));
+                  if (!res.ok) {
+                    toast.error(json?.error || 'Failed to send messages');
+                    return;
+                  }
+                  const updated = json?.updated ?? 0;
+                  toast.success(`Message sent to ${updated} recipients`);
+                  setGlobalOpen(false);
+                  setGlobalText('');
+                } catch (e:any) {
+                  toast.error(e?.message || 'Failed to send messages');
+                } finally {
+                  setGlobalSubmitting(false);
+                }
+              }}>{globalSubmitting ? 'Sending...' : 'Send'}</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
