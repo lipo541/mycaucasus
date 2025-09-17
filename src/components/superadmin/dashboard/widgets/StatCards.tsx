@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import VisitsChart from '@/components/metrics/VisitsChart';
 import styles from './StatCards.module.css';
 
 // --- Stat Card Component and Icons ---
@@ -106,12 +107,14 @@ const PendingUserIcon = () => (
 );
 
 
-// --- Chart Component (Placeholder) ---
+// --- Visits Chart Panel ---
 const Charts = () => (
-  <section className={`${styles.panel} ${styles.fullRow}`} aria-labelledby="registrations-header">
-    <h3 id="registrations-header" className={styles.panelHeader}>User Registrations (Last 30 Days)</h3>
-    <div className={styles.chartPlaceholder}>Chart will be rendered here</div>
-  </section>
+	<section className={`${styles.panel} ${styles.fullRow}`} aria-labelledby="visits-header">
+		<h3 id="visits-header" className={styles.panelHeader}>Site Visits (Last 30 Days)</h3>
+		<div style={{height:260, display:'flex', alignItems:'center'}}>
+			<VisitsChart days={30} height={220} />
+		</div>
+	</section>
 );
 
 // --- Recent Activity Component ---
@@ -160,15 +163,24 @@ const DashboardWidgets = () => {
 				if (!data.ok) throw new Error(data.error || 'Bad response');
 				if (cancelled) return;
 				const s = data.stats;
+				// Helper to format percent with sign
+				const fmtPct = (n: number | null | undefined) => {
+					if (n === null || n === undefined) return undefined;
+					const sign = n > 0 ? '+' : n < 0 ? '' : '';
+					return sign + n.toFixed(2) + '%';
+				};
 				setStats([
-					{ title: 'Total Users', value: s.totalUsers, icon: <UsersIcon />, change: '+0%', changeType: 'positive' },
-					{ title: 'Tandem Pilots', value: s.tandemPilots, icon: <TandemPilotIcon />, change: '+0', changeType: 'positive' },
-					{ title: 'Solo Pilots', value: s.soloPilots, icon: <SoloPilotIcon />, change: '+0', changeType: 'positive' },
+					{ title: 'Total Users', value: s.totalUsers, icon: <UsersIcon /> },
+					{ title: 'Tandem Pilots', value: s.tandemPilots, icon: <TandemPilotIcon /> },
+					{ title: 'Solo Pilots', value: s.soloPilots, icon: <SoloPilotIcon /> },
 					{ title: 'Pending Users', value: s.pendingUsers, icon: <PendingUserIcon />, change: s.pendingUsers.toString(), changeType: 'positive' },
 					{ title: 'Pending Content', value: s.pendingContent, icon: <ContentIcon />, change: s.pendingContent.toString(), changeType: s.pendingContent > 0 ? 'negative' : 'positive' },
-					{ title: 'Active Sessions', value: s.activeSessions, icon: <SessionsIcon />, change: '+0%', changeType: 'positive' },
-					{ title: 'Total Locations', value: s.totalLocations, icon: <LocationIcon />, change: '+0', changeType: 'positive' },
-					{ title: 'Total News', value: s.totalNews, icon: <NewsIcon />, change: '+0', changeType: 'positive' }
+					{ title: 'Active Sessions', value: s.activeSessions, icon: <SessionsIcon /> },
+					{ title: 'Total Locations', value: s.totalLocations, icon: <LocationIcon /> },
+					{ title: 'Total News', value: s.totalNews, icon: <NewsIcon /> },
+					{ title: 'Today Visits', value: s.todayVisits, icon: <SessionsIcon />, change: fmtPct(s.todayVsYesterdayPct), changeType: (s.todayVsYesterdayPct ?? 0) >= 0 ? 'positive' : 'negative' },
+					{ title: 'Avg Daily (30d)', value: s.avgDaily30, icon: <SessionsIcon />, change: fmtPct(s.avgDaily30Pct), changeType: (s.avgDaily30Pct ?? 0) >= 0 ? 'positive' : 'negative' },
+					{ title: 'Unique (30d)', value: s.unique30, icon: <SessionsIcon />, change: fmtPct(s.unique30Pct), changeType: (s.unique30Pct ?? 0) >= 0 ? 'positive' : 'negative' }
 				]);
 			} catch (e) {
 				console.warn('[DashboardWidgets] stats fetch failed, using fallback', (e as Error).message);

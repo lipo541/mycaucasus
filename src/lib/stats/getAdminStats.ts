@@ -78,6 +78,93 @@ export async function getAdminStats() {
     console.warn('[stats] sessions heuristic failed', e.message);
   }
 
+  // Visit metrics (last 30 days + today) + deltas
+  let todayVisits = 0;
+  let yesterdayVisits = 0;
+  let todayVsYesterdayPct: number | null = null;
+  let avgDaily30 = 0; // current 30d window (including today)
+  let prevAvgDaily30 = 0; // previous 30d window (days -60..-31)
+  let avgDaily30Pct: number | null = null;
+  let unique30 = 0; // unique sessions in current 30d window
+  let prevUnique30 = 0; // unique sessions prior window
+  let unique30Pct: number | null = null;
+  try {
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0,10);
+    const from = new Date();
+    from.setDate(from.getDate() - 29);
+    const fromStr = from.toISOString().slice(0,10);
+    // prior window (previous 30 days immediately before current window)
+    const prevFrom = new Date(); prevFrom.setDate(prevFrom.getDate() - 59); // 60 days back inclusive
+    const prevFromStr = prevFrom.toISOString().slice(0,10);
+    const prevTo = new Date(); prevTo.setDate(prevTo.getDate() - 30); // day before current window starts
+    const prevToStr = prevTo.toISOString().slice(0,10);
+    // aggregate in one query: visits + uniques per day then reduce
+    const [{ data, error }, { data: prevData, error: prevError }] = await Promise.all([
+      admin
+      .from('visit_events')
+      .select('ymd, session_id', { head: false })
+      .gte('ymd', fromStr)
+      .lte('ymd', todayStr),
+      admin
+        .from('visit_events')
+        .select('ymd, session_id', { head: false })
+        .gte('ymd', prevFromStr)
+        .lte('ymd', prevToStr)
+    ]);
+    if (!error && Array.isArray(data)) {
+      const dayMap: Record<string,{ visits:number; sessions:Set<string> }> = {};
+      for (const row of data as any[]) {
+        const d = row.ymd as string; const sid = row.session_id as string;
+        if (!dayMap[d]) dayMap[d] = { visits:0, sessions: new Set() };
+        dayMap[d].visits++;
+        if (sid) dayMap[d].sessions.add(sid);
+      }
+      const days = Object.keys(dayMap);
+      let totalVisits30 = 0; let totalUnique30 = 0;
+      for (const d of days) { totalVisits30 += dayMap[d].visits; totalUnique30 += dayMap[d].sessions.size; }
+      todayVisits = dayMap[todayStr]?.visits || 0;
+      // yesterday
+      const y = new Date(); y.setDate(y.getDate() - 1); const yesterdayStr = y.toISOString().slice(0,10);
+      yesterdayVisits = dayMap[yesterdayStr]?.visits || 0;
+      if (yesterdayVisits > 0) {
+        todayVsYesterdayPct = Math.round(((todayVisits - yesterdayVisits) / yesterdayVisits) * 10000) / 100;
+      } else if (todayVisits > 0) {
+        todayVsYesterdayPct = 100; // from 0 to >0 treat as +100%
+      } else {
+        todayVsYesterdayPct = 0;
+      }
+      avgDaily30 = days.length ? Math.round((totalVisits30 / 30) * 100) / 100 : 0;
+      unique30 = totalUnique30;
+    }
+    if (!prevError && Array.isArray(prevData)) {
+      const prevDayMap: Record<string,{ visits:number; sessions:Set<string> }> = {};
+      for (const row of prevData as any[]) {
+        const d = row.ymd as string; const sid = row.session_id as string;
+        if (!prevDayMap[d]) prevDayMap[d] = { visits:0, sessions: new Set() };
+        prevDayMap[d].visits++;
+        if (sid) prevDayMap[d].sessions.add(sid);
+      }
+      const prevDays = Object.keys(prevDayMap);
+      let prevVisitsTotal = 0; let prevUniqueTotal = 0;
+      for (const d of prevDays) { prevVisitsTotal += prevDayMap[d].visits; prevUniqueTotal += prevDayMap[d].sessions.size; }
+      prevAvgDaily30 = prevDays.length ? Math.round((prevVisitsTotal / 30) * 100) / 100 : 0;
+      prevUnique30 = prevUniqueTotal;
+      if (prevAvgDaily30 > 0) {
+        avgDaily30Pct = Math.round(((avgDaily30 - prevAvgDaily30) / prevAvgDaily30) * 10000) / 100;
+      } else if (avgDaily30 > 0) {
+        avgDaily30Pct = 100;
+      } else { avgDaily30Pct = 0; }
+      if (prevUnique30 > 0) {
+        unique30Pct = Math.round(((unique30 - prevUnique30) / prevUnique30) * 10000) / 100;
+      } else if (unique30 > 0) {
+        unique30Pct = 100;
+      } else { unique30Pct = 0; }
+    }
+  } catch (e:any) {
+    console.warn('[stats] visit metrics failed', e.message);
+  }
+
   return {
     totalUsers,
     tandemPilots,
@@ -86,7 +173,16 @@ export async function getAdminStats() {
     pendingContent,
     activeSessions,
     totalLocations,
-    totalNews
+    totalNews,
+    todayVisits,
+    yesterdayVisits,
+    todayVsYesterdayPct,
+    avgDaily30,
+    prevAvgDaily30,
+    avgDaily30Pct,
+    unique30,
+    prevUnique30,
+    unique30Pct
   };
 }
 

@@ -3,6 +3,7 @@ import 'flag-icons/css/flag-icons.min.css';
 import '../globals.css';
 import { Header } from '@/components/header/Header';
 import AdminRootWrapper from '@/components/AdminRootWrapper';
+import VisitTracker from '@/components/metrics/VisitTracker';
 
 // Server layout: exports metadata. Client-only routing logic lives in AdminRootWrapper.
 export const metadata: Metadata = {
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <VisitTracker />
       <Header />
       <AdminRootWrapper>{children}</AdminRootWrapper>
     </>
