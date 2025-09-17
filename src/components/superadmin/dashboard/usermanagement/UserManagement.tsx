@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { toast } from '@/lib/toast';
 import styles from './UserManagement.module.css';
 
@@ -176,6 +177,9 @@ const UserManagement: React.FC = () => {
     setUsers(us => us.map(u => u.id === id ? ({ ...u, blocked: !u.blocked, status: !u.blocked ? 'Inactive' : 'Active' }) : u));
   }, []);
 
+  // cancel edit must be declared before any callbacks that reference it in deps
+  const cancelEdit = useCallback(() => { setEditId(null as any); setEditDraft({}); }, []);
+
   // delete user (placed after cancelEdit declaration for dependency order)
   const deleteUserRef = useRef<(id:string)=>void>();
   deleteUserRef.current = (id:string) => {
@@ -189,11 +193,12 @@ const UserManagement: React.FC = () => {
     setExpandedId(id);
   }, []);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rejectPilot = useCallback((id: string) => {
     setUsers(us => us.map(u => u.id === id ? ({ ...u, status: 'Rejected' }) : u));
     setExpandedId(id);
     if (editId === id) cancelEdit();
-  }, [editId]);
+  }, [editId, cancelEdit]);
 
   const toggleUserOperator = useCallback((id: string) => {
     setUsers(us => us.map(u => {
@@ -209,8 +214,6 @@ const UserManagement: React.FC = () => {
     setEditDraft({ ...u });
     setExpandedId(u.id);
   }, []);
-
-  const cancelEdit = useCallback(() => { setEditId(null as any); setEditDraft({}); }, []);
 
   const saveEdit = useCallback(() => {
     if (editId == null) return;
@@ -370,22 +373,8 @@ const UserManagement: React.FC = () => {
             </div>
           </form>
         )}
-        <div className={styles.detailActions}>
-          {pendingPilot && (
-            <>
-              <button type="button" onClick={() => openConfirm(`Approve pilot ${u.name}?`, () => approvePilot(u.id))} className={styles.approveBtn}>Approve</button>
-              <button type="button" onClick={() => openConfirm(`Reject pilot ${u.name}?`, () => rejectPilot(u.id))} className={styles.rejectBtn}>Reject</button>
-            </>
-          )}
-          {rejectedPilot && (
-            <span className={styles.rejectedNote}>Rejected pilot — no edits allowed.</span>
-          )}
-          {isUserType && <button type="button" onClick={() => openConfirm(`${u.role === 'User' ? 'Make' : 'Revert'} ${u.name} ${u.role === 'User' ? 'Operator' : 'User'}?`, () => toggleUserOperator(u.id))} className={styles.secondaryBtn}>Role: {u.role === 'User' ? 'Make Operator' : 'Make User'}</button>}
-          {!pendingPilot && !rejectedPilot && editId !== u.id && !isUserType && <button onClick={() => startEdit(u)} className={styles.primaryBtn}>Edit</button>}
-          {!pendingPilot && !rejectedPilot && editId === u.id && <button onClick={() => openConfirm(`Save changes to ${u.name}?`, () => saveEdit())} className={styles.primaryBtn}>Save</button>}
-          {!pendingPilot && !rejectedPilot && editId === u.id && <button onClick={() => openConfirm('Discard changes?', () => cancelEdit())} className={styles.secondaryBtn}>Cancel</button>}
-          {!pendingPilot && <button onClick={() => openConfirm(`${u.blocked ? 'Unblock' : 'Block'} ${u.name}?`, () => toggleBlock(u.id))} className={u.blocked ? styles.unblockBtn : styles.blockBtn}>{u.blocked ? 'Unblock' : 'Block'}</button>}
-        </div>
+        {/* Removed duplicate detailActions block to avoid redundant Edit/Block controls below details.
+            All actions are available in the main Actions column (desktop) and the card toolbar (mobile). */}
       </div>
     );
   };
@@ -498,7 +487,7 @@ const UserManagement: React.FC = () => {
                         <span className={styles.chevron}></span>
                       </button>
                       {u.avatar_signed_url ? (
-                        <img src={u.avatar_signed_url} alt={u.name} className={styles.avatarImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
+                        <Image src={u.avatar_signed_url} alt={u.name} width={36} height={36} className={styles.avatarImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
                       ) : (
                         <div className={styles.avatar}>{u.name.charAt(0).toUpperCase()}</div>
                       )}
@@ -566,7 +555,7 @@ const UserManagement: React.FC = () => {
           <div key={u.id} className={styles.userCard}>
               <div className={styles.cardHeader} onClick={() => toggleExpand(u.id)}>
               {u.avatar_signed_url ? (
-                <img src={u.avatar_signed_url} alt={u.name} className={styles.avatarLgImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
+                <Image src={u.avatar_signed_url} alt={u.name} width={44} height={44} className={styles.avatarLgImg} onClick={(e)=>{ e.stopPropagation(); setViewerUrl(u.avatar_signed_url!); }} />
               ) : (
                 <div className={styles.avatarLg}>{u.name.charAt(0).toUpperCase()}</div>
               )}
@@ -576,6 +565,86 @@ const UserManagement: React.FC = () => {
                 <div className={styles.cardMetaSmall}>{u.role}</div>
               </div>
               <span className={`${styles.status} ${styles[u.status.toLowerCase()]}`}><span className={styles.statusDot} aria-hidden="true"></span>{u.status}</span>
+            </div>
+            {/* Mobile actions toolbar: parity with desktop */}
+            <div className={styles.cardActions}>
+              {u.status === 'Pending' && u.role.toLowerCase().includes('pilot') ? (
+                <>
+                  <button
+                    className={styles.actionButton}
+                    onClick={(e) => { e.stopPropagation(); openConfirm(`Approve pilot ${u.name}?`, async () => {
+                      try { await fetch('/api/register/pilot-basic', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'approve-user', userId: u.id }) }); } catch {}
+                      approvePilot(u.id);
+                    }); }}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                    onClick={(e) => { e.stopPropagation(); setRejectUserId(u.id); setRejectReason(''); }}
+                  >
+                    Reject
+                  </button>
+                </>
+              ) : u.status !== 'Rejected' ? (
+                <>
+                  {(u.role === 'User' || u.role === 'Operator') ? (
+                    <button
+                      className={styles.actionButton}
+                      onClick={(e) => { e.stopPropagation(); openConfirm(`${u.role === 'User' ? 'Make' : 'Revert'} ${u.name} ${u.role === 'User' ? 'Operator' : 'User'}?`, () => toggleUserOperator(u.id)); }}
+                    >
+                      {u.role === 'User' ? 'Make Operator' : 'Make User'}
+                    </button>
+                  ) : (
+                    <>
+                      {editId !== u.id && (
+                        <button
+                          className={styles.actionButton}
+                          onClick={(e) => { e.stopPropagation(); startEdit(u); }}
+                        >
+                          Edit
+                        </button>
+                      )}
+                      {editId === u.id && (
+                        <>
+                          <button
+                            className={styles.actionButton}
+                            onClick={(e) => { e.stopPropagation(); openConfirm(`Save changes to ${u.name}?`, () => saveEdit()); }}
+                          >
+                            Save
+                          </button>
+                          <button
+                            className={styles.actionButton}
+                            onClick={(e) => { e.stopPropagation(); openConfirm('Discard changes?', () => cancelEdit()); }}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </>
+                  )}
+                  <button
+                    className={styles.actionButton}
+                    onClick={(e) => { e.stopPropagation(); setMsgUserId(u.id); setMsgText(''); }}
+                  >
+                    Message
+                  </button>
+                  <button
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                    onClick={(e) => { e.stopPropagation(); openConfirm(`Delete user ${u.name}? This cannot be undone.`, () => deleteUserRef.current && deleteUserRef.current(u.id)); }}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={(e) => { e.stopPropagation(); openConfirm(`${u.blocked ? 'Unblock' : 'Block'} ${u.name}?`, () => toggleBlock(u.id)); }}
+                  >
+                    {u.blocked ? 'Unblock' : 'Block'}
+                  </button>
+                </>
+              ) : (
+                <span className={styles.rejectedTag}>Rejected</span>
+              )}
             </div>
             {expandedId === u.id && (
               <div className={styles.mobileDetails}>{renderDetails(u)}</div>
@@ -646,7 +715,9 @@ const UserManagement: React.FC = () => {
       {viewerUrl && (
         <div className={styles.imageOverlay} role="dialog" aria-modal="true" onClick={()=>setViewerUrl(null)}>
           <button type="button" className={styles.imageClose} aria-label="Close" onClick={(e)=>{ e.stopPropagation(); setViewerUrl(null); }}>×</button>
-          <img src={viewerUrl} alt="Avatar preview" className={styles.image} onClick={(e)=> e.stopPropagation()} />
+          <div className={styles.imageBox} onClick={(e)=> e.stopPropagation()}>
+            <Image src={viewerUrl} alt="Avatar preview" fill className={styles.image} sizes="90vw" />
+          </div>
         </div>
       )}
       {globalOpen && (

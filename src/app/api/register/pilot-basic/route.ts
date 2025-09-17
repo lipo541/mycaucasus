@@ -217,11 +217,16 @@ export async function GET(req: Request) {
     const page = Number(searchParams.get('page') || '1');
     const perPage = Number(searchParams.get('perPage') || '100');
 
-  const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage });
+    const { data, error } = await (admin as any).auth.admin.listUsers({ page, perPage });
   if (error) return NextResponse.json({ error: `Supabase listUsers failed: ${error.message}` }, { status: 400 });
     const users = (data?.users || data?.data || []) as any[];
+    // Exclude superadmin accounts from the listing
+    const visibleUsers = users.filter((u: any) => {
+      const role = ((u?.user_metadata?.role) ?? '').toString().toLowerCase();
+      return role !== 'superadmin';
+    });
 
-    const mapped = await Promise.all(users.map(async (u: any) => {
+    const mapped = await Promise.all(visibleUsers.map(async (u: any) => {
       const md = (u?.user_metadata || {}) as Record<string, any>;
       const first = (md.first_name || '').trim();
       const last = (md.last_name || '').trim();

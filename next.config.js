@@ -7,7 +7,8 @@ const nextConfig = {
 		remotePatterns: [
 			{ protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google avatars
 			{ protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' }, // Facebook avatar proxy
-			{ protocol: 'https', hostname: 'scontent.xx.fbcdn.net' } // Fallback direct FB CDN pattern
+			{ protocol: 'https', hostname: 'scontent.xx.fbcdn.net' }, // Fallback direct FB CDN pattern
+			{ protocol: 'https', hostname: 'ayfkmchipjlmxzfwrwyf.supabase.co' } // Supabase project assets (signed URLs)
 		]
 	},
 	webpack: (config, { dev }) => {

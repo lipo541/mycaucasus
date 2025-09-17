@@ -210,6 +210,7 @@ export function HeroDynamic() {
                 <picture>
                   {p.thumbWebp && <source srcSet={p.thumbWebp} type="image/webp" />}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   {p.thumb && <img src={p.thumb} alt={p.title} loading="lazy" />}
                 </picture>
               )}

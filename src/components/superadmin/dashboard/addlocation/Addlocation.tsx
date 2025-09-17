@@ -218,6 +218,7 @@ export default function AddLocation() {
 										<div className={styles.imagesRow}>
 											{s.images.map((f,i) => (
 												<div key={i} className={styles.imagePreviewWrapper}>
+													{/* eslint-disable-next-line @next/next/no-img-element */}
 													<img src={URL.createObjectURL(f)} alt={f.name} />
 													<button type="button" className={styles.removeImageBtn} onClick={() => removeSectionImage(s.id, i)}>×</button>
 												</div>

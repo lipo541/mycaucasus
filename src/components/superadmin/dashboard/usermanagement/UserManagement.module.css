@@ -686,17 +686,18 @@
   overflow: hidden; /* Prevent meta overflow */
 }
 .cardActions { 
-  display: flex; 
-  gap: 8px; 
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   margin-top: 10px;
-  flex-wrap: wrap; /* Allow actions to wrap */
-  overflow: hidden; /* Prevent actions overflow */
+  align-items: stretch;
 }
 .mobileDetails { margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 12px; }
 .noResultsCard { text-align: center; color: rgba(229,231,235,0.75); font-size: 0.85rem; padding: 24px 0; font-style: italic; }
 .imageOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; cursor: pointer; }
 .imageClose { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
 .image { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; }
+.imageBox { position: relative; width: 90%; height: 90%; max-width: 1200px; max-height: 90vh; }
 .loading { 
   text-align: center; 
   color: rgba(248,250,252,0.9); 
@@ -807,6 +808,8 @@
     width: 100%; 
     justify-content: center; 
   }
+  .actionButton { width: 100%; text-align: center; }
+  .cardActions { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 960px) { 
