@@ -85,9 +85,11 @@ const Sidebar = ({
 };
 
 export default function Dashboard() {
-	const [ isSidebarOpen, setSidebarOpen ] = useState(true); // Sidebar is open by default on desktop
+	// Open by default on desktop, closed on mobile (initialized after first effect)
+	const [ isSidebarOpen, setSidebarOpen ] = useState(true);
 	const [ activeLink, setActiveLink ] = useState('Dashboard');
 	const [ signingOut, setSigningOut ] = useState(false);
+	const [ ready, setReady ] = useState(false);
 	const router = useRouter();
 	const supabase = createSupabaseBrowserClient();
 	const sidebarRef = useRef<HTMLElement>(null);
@@ -124,6 +126,24 @@ export default function Dashboard() {
 	const isMobile = useCallback(() => {
 		if (typeof window === 'undefined') return false;
 		return window.matchMedia('(max-width: 768px)').matches;
+	}, []);
+
+	// Ensure initial closed state on mobile; update on resize without auto-opening on mobile
+	useEffect(() => {
+		if (typeof window === 'undefined') return;
+		const mq = window.matchMedia('(max-width: 768px)');
+		const apply = () => {
+			if (mq.matches) {
+				setSidebarOpen(false); // force closed in mobile view
+			} else {
+				setSidebarOpen(true); // open on desktop for convenience
+			}
+			// defer readiness tick so CSS can suppress transition first frame
+			requestAnimationFrame(() => setReady(true));
+		};
+		apply();
+		mq.addEventListener('change', apply);
+		return () => mq.removeEventListener('change', apply);
 	}, []);
 
 	// Focus trap when sidebar open on mobile
@@ -212,7 +232,7 @@ export default function Dashboard() {
   };
 
 	return (
-		<div className={styles.dashboardLayout}>
+		<div className={styles.dashboardLayout} data-init={ready ? 'false' : 'true'}>
 			{/* Mobile backdrop */}
 			{isSidebarOpen && isMobile() && <div className={styles.backdrop} onClick={() => setSidebarOpen(false)} aria-hidden="true" />}
 			<Sidebar

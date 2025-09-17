@@ -235,6 +235,10 @@
 }
 
 @media (max-width: 768px) {
+	/* During first paint (data-init) avoid animated slide flicker */
+	.dashboardLayout[data-init="true"] .sidebar {
+		transition: none !important;
+	}
 	.sidebar {
 		position: fixed;
 		left: 0;
