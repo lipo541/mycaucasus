@@ -52,8 +52,14 @@
 @keyframes langMenuFade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 .lang-dropdown__item { margin:0; padding:0; }
 .lang-dropdown__btn { width:100%; background: transparent; border: none; text-align: left; padding: .55rem .95rem .55rem 1rem; font: inherit; font-size: .8rem; letter-spacing: .4px; color: #fff; display: flex; align-items: center; justify-content: flex-start; cursor: pointer; transition: background .25s, color .25s; }
+.lang-dropdown__btn--danger { color: #fff; background: linear-gradient(to right, rgba(220,38,38,0.12), rgba(220,38,38,0.06)); }
+.lang-dropdown__btn--danger:hover, .lang-dropdown__btn--danger:focus-visible { background: rgba(220,38,38,0.2); }
+.lang-dropdown__btn--danger .lang-dropdown__icon { color: #ef4444; }
+.lang-dropdown__item--divider { margin-top: .25rem; padding-top: .25rem; border-top: 1px solid rgba(255,255,255,0.1); }
 .lang-dropdown__flag { width:1.35rem; height:1rem; display:inline-block; margin-right:.55rem; font-size:0; line-height:1; background-size:contain; }
 .lang-dropdown__label { flex:1 1 auto; }
+.lang-dropdown__icon{ display:inline-flex; width:18px; height:18px; align-items:center; justify-content:center; margin-right:.5rem; opacity:.95; color:currentColor; }
+.lang-dropdown__icon svg{ width:18px; height:18px; }
 .lang-dropdown__badge { background:#ef4444; color:#fff; border-radius:12px; min-width:16px; height:16px; padding:0 4px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; line-height:16px; margin-left:.4rem; }
 .lang-dropdown__btn[aria-checked="true"] .lang-dropdown__label { font-weight:600; }
 .lang-dropdown__btn[aria-checked="true"]::after { content:'•'; font-size:.9rem; margin-left:.4rem; line-height:1; }

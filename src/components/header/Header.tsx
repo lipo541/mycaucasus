@@ -9,6 +9,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabaseClient';
 import { toast } from '../../lib/toast';
 import { onMessagesUpdated } from '@/lib/messagesBus';
 import { armSoundEngine } from '@/lib/sound';
+import { getSignedAvatarUrl } from '@/lib/storage';
 
 export function Header() {
 	const [scrolled, setScrolled] = useState(false);
@@ -39,8 +40,8 @@ export function Header() {
 	const [bellAck, setBellAck] = useState(false);
 	// Mobile profile dropdown (burger menu) state
 	const [profileOpen, setProfileOpen] = useState(false);
-	// Derive avatar url & initial
-	const avatarUrl = (user?.user_metadata && (user.user_metadata.avatar_url || user.user_metadata.picture)) || null;
+	// Derive avatar url & initial (prefer signed storage URL for approved users)
+	const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 	const userEmail: string | undefined = user?.email || (user?.user_metadata?.email as string | undefined);
 	const userName: string | undefined = (user?.user_metadata?.full_name as string | undefined) || (user?.user_metadata?.name as string | undefined);
 	const initial = (userName || userEmail || '').trim().charAt(0).toUpperCase();
@@ -52,6 +53,29 @@ export function Header() {
 	const isPending = statusLc === 'pending';
 	const isRejected = statusLc === 'rejected';
 	const isActive = statusLc === 'active';
+
+	// Resolve avatar URL: if admin approved and user has `avatar_storage_path`, use signed URL from Supabase Storage
+	useEffect(() => {
+		let cancelled = false;
+		const run = async () => {
+			const md: any = user?.user_metadata || {};
+			const base = (md.avatar_url || md.picture) || null;
+			const storagePath: string | null = md.avatar_storage_path || null;
+			// Only use storage avatar after approval
+			if (isActive && storagePath) {
+				try {
+					const signed = await getSignedAvatarUrl(storagePath, 60 * 60);
+					if (!cancelled) setAvatarUrl(signed || base);
+					return;
+				} catch {
+					// Fallback to base (social avatar) on error
+				}
+			}
+			if (!cancelled) setAvatarUrl(base);
+		};
+		run();
+		return () => { cancelled = true; };
+	}, [user, isActive]);
 
 	// Detect coarse pointer (touch) to disable hover open/close logic on mobile
 	useEffect(() => {
@@ -409,6 +433,9 @@ export function Header() {
 								{(isInactive || isRejected) && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/verify/complete" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__icon" aria-hidden="true">
+												<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.5 5 5.5.8-4 3.9.9 5.5L12 16l-4.9 2.2.9-5.5-4-3.9 5.5-.8L12 3z" fill="currentColor"/></svg>
+											</span>
 											<span className="lang-dropdown__label">დაასრულე ვერიფიკაცია</span>
 										</Link>
 									</li>
@@ -416,6 +443,9 @@ export function Header() {
 								{isPending && (
 									<li className="lang-dropdown__item" role="none">
 										<button className="lang-dropdown__btn" type="button" disabled aria-disabled="true">
+											<span className="lang-dropdown__icon" aria-hidden="true">
+												<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" fill="none" strokeWidth="2"/><path d="M12 7v6l4 2" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+											</span>
 											<span className="lang-dropdown__label">ვერიფიკაცია pending</span>
 										</button>
 									</li>
@@ -423,6 +453,9 @@ export function Header() {
 								{isActive && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__icon" aria-hidden="true">
+												<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="4" width="6" height="6" rx="1" fill="currentColor" /><rect x="3" y="14" width="6" height="6" rx="1" fill="currentColor" /><rect x="13" y="4" width="8" height="6" rx="1" fill="currentColor" /><rect x="13" y="14" width="8" height="6" rx="1" fill="currentColor" /></svg>
+											</span>
 											<span className="lang-dropdown__label">დაშბორდი</span>
 										</Link>
 									</li>
@@ -430,6 +463,9 @@ export function Header() {
 								{messages.length > 0 && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/notifications" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+											<span className="lang-dropdown__icon" aria-hidden="true">
+												<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-bell"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z" fill="currentColor"/></svg>
+											</span>
 											<span className="lang-dropdown__label">შეტყობინებები</span>
 											{(() => { const n = ((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number; return n > 0 ? (<span className="lang-dropdown__badge" aria-label={`ახალი შეტყობინებები ${n}`}>{n > 99 ? '99+' : n}</span>) : null; })()}
 										</Link>
@@ -437,12 +473,15 @@ export function Header() {
 								)}
 								<li className="lang-dropdown__item" role="none">
 									<Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+										<span className="lang-dropdown__icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6" fill="currentColor"/></svg>
+										</span>
 										<span className="lang-dropdown__label">პროფილი</span>
 									</Link>
 								</li>
-								<li className="lang-dropdown__item" role="none">
+								<li className="lang-dropdown__item lang-dropdown__item--divider" role="none">
 									<button
-										className="lang-dropdown__btn"
+										className="lang-dropdown__btn lang-dropdown__btn--danger"
 										role="menuitem"
 																				onClick={async () => {
 																					const ok = window.confirm('დაადასტურე გასვლა?');
@@ -454,6 +493,9 @@ export function Header() {
 																				}}
 										type="button"
 									>
+										<span className="lang-dropdown__icon" aria-hidden="true">
+											<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="4" x2="20" y2="20" stroke="currentColor" strokeWidth="2"/><line x1="20" y1="4" x2="4" y2="20" stroke="currentColor" strokeWidth="2"/></svg>
+										</span>
 										<span className="lang-dropdown__label">გასვლა</span>
 									</button>
 								</li>
