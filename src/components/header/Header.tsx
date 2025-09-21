@@ -326,7 +326,7 @@ export function Header() {
 						</svg>
 						{effectiveUnread > 0 && (
 							<span aria-label={`ახალი შეტყობინებები ${effectiveUnread}`}
-								style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px rgba(0,0,0,0.35)' }}>
+								style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px' }}>
 								{effectiveUnread > 99 ? '99+' : effectiveUnread}
 							</span>
 						)}
@@ -430,7 +430,8 @@ export function Header() {
 								{messages.length > 0 && (
 									<li className="lang-dropdown__item" role="none">
 										<Link className="lang-dropdown__btn" href="/notifications" role="menuitem" onClick={() => setUserMenuOpen(false)}>
-											<span className="lang-dropdown__label">შეტყობინებები{(((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number) ? ` (${(user?.user_metadata as any)?.__unread_override ?? unreadCount})` : ''}</span>
+											<span className="lang-dropdown__label">შეტყობინებები</span>
+											{(() => { const n = ((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number; return n > 0 ? (<span className="lang-dropdown__badge" aria-label={`ახალი შეტყობინებები ${n}`}>{n > 99 ? '99+' : n}</span>) : null; })()}
 										</Link>
 									</li>
 								)}
@@ -548,12 +549,12 @@ export function Header() {
 							<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-bell">
 								<path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z" />
 							</svg>
-							{effectiveUnread > 0 && (
-								<span aria-label={`ახალი შეტყობინებები ${effectiveUnread}`}
-									style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px rgba(0,0,0,0.35)' }}>
-									{effectiveUnread > 99 ? '99+' : effectiveUnread}
-								</span>
-							)}
+								{effectiveUnread > 0 && (
+									<span aria-label={`ახალი შეტყობინებები ${effectiveUnread}`}
+										style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px' }}>
+										{effectiveUnread > 99 ? '99+' : effectiveUnread}
+									</span>
+								)}
 						</button>
 					);
 				})()}
