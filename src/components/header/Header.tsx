@@ -35,6 +35,8 @@ export function Header() {
 	const [userDropdownPos, setUserDropdownPos] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
 	const supabase = createSupabaseBrowserClient();
 	const lastUnreadRef = useRef<number>(-1);
+	// Acknowledge bell once user clicks it (stop ringing until next mount)
+	const [bellAck, setBellAck] = useState(false);
 	// Mobile profile dropdown (burger menu) state
 	const [profileOpen, setProfileOpen] = useState(false);
 	// Derive avatar url & initial
@@ -307,9 +309,30 @@ export function Header() {
 				>
 					<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
 				</button>
-			<button className="icon-btn hide-on-mobile" type="button" aria-label="რუკა">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-				</button>
+			{(() => {
+				const unreadOverride = (user?.user_metadata as any)?.__unread_override;
+				const effectiveUnread = typeof unreadOverride === 'number' ? unreadOverride : unreadCount;
+				const shouldRing = effectiveUnread > 0 && !bellAck;
+				return (
+					<button
+						className={`icon-btn hide-on-mobile ${shouldRing ? 'is-ringing' : ''}`}
+						type="button"
+						aria-label={`შეტყობინებები${effectiveUnread ? `: ${effectiveUnread}` : ''}`}
+						onClick={() => { setBellAck(true); window.location.assign('/notifications'); }}
+						style={{ position: 'relative' }}
+					>
+						<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-bell">
+							<path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z" />
+						</svg>
+						{effectiveUnread > 0 && (
+							<span aria-label={`ახალი შეტყობინებები ${effectiveUnread}`}
+								style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px rgba(0,0,0,0.35)' }}>
+								{effectiveUnread > 99 ? '99+' : effectiveUnread}
+							</span>
+						)}
+					</button>
+				);
+			})()}
 			<button className="icon-btn hide-on-mobile" type="button" aria-label="რჩეულები">
 					<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-heart">
 						<path d="M12 21.35 10.55 20.03C5.4 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.9 0 3.6 1.13 4.5 2.88C11.9 5.13 13.6 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35Z" />
@@ -375,12 +398,7 @@ export function Header() {
 							) : (
 								<span className="site-header__avatar site-header__avatar--fallback" aria-hidden="true">{initial || 'U'}</span>
 							)}
-							{((user?.user_metadata as any)?.__unread_override ?? unreadCount) > 0 && (
-								<span aria-label={`ჩატვლადი შეტყობინებები ${unreadCount}`}
-									style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px #fff' }}>
-									{(((user?.user_metadata as any)?.__unread_override ?? unreadCount) as number) > 99 ? '99+' : ((user?.user_metadata as any)?.__unread_override ?? unreadCount)}
-								</span>
-							)}
+							{/* Notification badge moved to bell icon; keep avatar clean */}
 						</button>
 						{userMenuOpen && (
 							<ul
@@ -514,6 +532,31 @@ export function Header() {
 						</ul>
 					)}
 				</div>
+				{/* Mobile bell: place between language switcher and burger */}
+				{isMobileView && (() => {
+					const unreadOverride = (user?.user_metadata as any)?.__unread_override;
+					const effectiveUnread = typeof unreadOverride === 'number' ? unreadOverride : unreadCount;
+					const shouldRing = effectiveUnread > 0 && !bellAck;
+					return (
+						<button
+							className={`icon-btn ${shouldRing ? 'is-ringing' : ''}`}
+							type="button"
+							aria-label={`შეტყობინებები${effectiveUnread ? `: ${effectiveUnread}` : ''}`}
+							onClick={() => { setBellAck(true); window.location.assign('/notifications'); }}
+							style={{ position: 'relative' }}
+						>
+							<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-bell">
+								<path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z" />
+							</svg>
+							{effectiveUnread > 0 && (
+								<span aria-label={`ახალი შეტყობინებები ${effectiveUnread}`}
+									style={{ position: 'absolute', top: -2, right: -2, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 16, height: 16, padding: '0 4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, lineHeight: '16px', boxShadow: '0 0 0 2px rgba(0,0,0,0.35)' }}>
+									{effectiveUnread > 99 ? '99+' : effectiveUnread}
+								</span>
+							)}
+						</button>
+					);
+				})()}
 				{isMobileView && (
 					<button
 						className="site-header__burger"
@@ -576,12 +619,7 @@ export function Header() {
 												) : (
 													<span className="site-header__avatar-icon site-header__avatar-icon--fallback" aria-hidden="true" style={{ width: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' }}>{initial || 'U'}</span>
 												)}
-												{unreadCount > 0 && (
-													<span aria-label={`ჩატვლადი შეტყობინებები ${unreadCount}`}
-														style={{ position: 'absolute', top: -4, right: -6, background: '#ef4444', color: '#fff', borderRadius: 12, minWidth: 14, height: 14, padding: '0 3px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, lineHeight: '14px', boxShadow: '0 0 0 2px #fff' }}>
-														{unreadCount > 99 ? '99+' : unreadCount}
-													</span>
-												)}
+												{/* Notification badge removed from profile in mobile menu as well */}
 											</span>
 											<span className="site-nav__label">პროფილი</span>
 											<span className="site-nav__spacer" />
@@ -632,11 +670,11 @@ export function Header() {
 					)}
 						<NavBar lang={lang} variant="mobile" />
 					</div>
-					<div className="menu-panel__section menu-panel__actions" aria-label="ქმედებები">
-						<button className="menu-panel__action" type="button" aria-label="Map">
-							<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21 3 6"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
-							<span>რუკა</span>
-						</button>
+						<div className="menu-panel__section menu-panel__actions" aria-label="ქმედებები">
+							<button className="menu-panel__action" type="button" aria-label="შეტყობინებები" onClick={() => { setBellAck(true); window.location.assign('/notifications'); }}>
+								<svg viewBox="0 0 24 24" aria-hidden="true" className="icon-bell"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2Zm6-6V11a6 6 0 0 0-5-5.91V4a1 1 0 1 0-2 0v1.09A6 6 0 0 0 6 11v5l-2 2v1h16v-1l-2-2Z"/></svg>
+								<span>შეტყობინებები</span>
+							</button>
 						{!user ? (
 							<Link className="menu-panel__action" href="/login" aria-label="შესვლა" onClick={() => setBurgerOpen(false)}>
 								<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6" /></svg>

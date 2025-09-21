@@ -39,6 +39,9 @@
 .icon-btn .icon-heart { width:22px; height:22px; stroke:none; fill:currentColor; filter: drop-shadow(0 0 2px rgba(0,0,0,0.25)); transition: transform .35s, color .35s; }
 .icon-btn:hover .icon-heart { transform: translateY(-2px) scale(1.05); }
 .site-header.is-scrolled .icon-heart, .site-header:hover .icon-heart { filter:none; }
+/* Bell icon ring animation when there are unread notifications */
+.icon-btn.is-ringing .icon-bell { transform-origin: 12px 4px; animation: bellRing .9s ease-in-out infinite; }
+@keyframes bellRing { 0%{ transform: rotate(0deg);} 15%{ transform: rotate(18deg);} 30%{ transform: rotate(-14deg);} 45%{ transform: rotate(10deg);} 60%{ transform: rotate(-6deg);} 75%{ transform: rotate(3deg);} 100%{ transform: rotate(0deg);} }
 @media (max-width: 820px) { .hide-on-mobile { display: none !important; } }
 .icon-btn__badge { position: absolute; top: 5px; right: 5px; min-width: 18px; height: 18px; padding: 0 5px; background: #e11d48; color: #fff; font-size: .6rem; font-weight: 600; line-height: 18px; border-radius: 999px; box-shadow: 0 0 0 2px rgba(0,0,0,0.45); display: inline-flex; align-items: center; justify-content: center; }
 @media (prefers-color-scheme: light) { .icon-btn { color:#111; } .icon-btn:hover { color:#000; } .icon-btn__badge { box-shadow: 0 0 0 2px #fff; } }
