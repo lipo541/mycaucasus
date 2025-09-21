@@ -452,7 +452,7 @@ export function Header() {
 								)}
 								{isActive && (
 									<li className="lang-dropdown__item" role="none">
-										<Link className="lang-dropdown__btn" href="/profile" role="menuitem" onClick={() => setUserMenuOpen(false)}>
+										<Link className="lang-dropdown__btn" href="/pilotdashboard" role="menuitem" onClick={() => setUserMenuOpen(false)}>
 											<span className="lang-dropdown__icon" aria-hidden="true">
 												<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="4" width="6" height="6" rx="1" fill="currentColor" /><rect x="3" y="14" width="6" height="6" rx="1" fill="currentColor" /><rect x="13" y="4" width="8" height="6" rx="1" fill="currentColor" /><rect x="13" y="14" width="8" height="6" rx="1" fill="currentColor" /></svg>
 											</span>
@@ -680,11 +680,11 @@ export function Header() {
 												</li>
 											)}
 											<li className="site-nav__subitem">
-												<Link href="/profile" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
+												<Link href="/pilotdashboard" className="site-nav__sublink menu-panel__action" onClick={() => { setBurgerOpen(false); setProfileOpen(false); }}>
 													<span className="site-nav__icon" aria-hidden="true">
 														<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3" y="4" width="6" height="6" rx="1" fill="currentColor" /><rect x="3" y="14" width="6" height="6" rx="1" fill="currentColor" /><rect x="13" y="4" width="8" height="6" rx="1" fill="currentColor" /><rect x="13" y="14" width="8" height="6" rx="1" fill="currentColor" /></svg>
 													</span>
-													<span className="site-nav__label">დაფა</span>
+													<span className="site-nav__label">დაშბორდი</span>
 												</Link>
 											</li>
 											{messages.length > 0 && (

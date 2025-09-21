@@ -1,0 +1,12 @@
+/* Pilot dashboard styles. Keep minimal, aligned with superadmin dashboard look */
+@import '../superadmin/dashboard/Dashboard.module.css';
+
+/* Local tweaks if needed */
+.pilotHeader { color: #fff; margin: 0 0 12px; }
+.pilotText { color: #cbd5e1; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; }
+.card { background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; }
+.cardVal { color: #e5e7eb; font-size: 22px; font-weight: 700; }
+.cardLbl { color: #94a3b8; margin-top: 2px; }
+.section { margin-top: 16px; }
+.sectionBox { border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; color: #cbd5e1; }

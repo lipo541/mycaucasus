@@ -1,0 +1,475 @@
+/* PilotProfile — aligned with UserManagement dark design system */
+
+/* Container with dark backdrop, consistent with UserManagement.module.css */
+.container {
+	position: relative;
+	min-height: 100vh;
+	padding-bottom: 40px;
+}
+
+.container::before {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: #000000; /* Pure black background */
+	z-index: -2;
+}
+
+.container::after {
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: radial-gradient(1200px 800px at 30% 20%, rgba(15,23,42,0.3), rgba(15,23,42,0.8) 60%),
+							linear-gradient(180deg, rgba(15,23,42,0.2), rgba(15,23,42,0.6));
+	z-index: -1;
+}
+
+/* Section card wrapper */
+.section {
+	background: #000; /* Pure black card */
+	border: 1px solid rgba(255,255,255,0.08); /* Subtle border */
+	border-radius: 16px;
+	padding: 20px;
+	margin: 0 auto 24px;
+	max-width: 1200px;
+	position: relative;
+	z-index: 1;
+}
+
+/* Two-column wrapper for Pilot Information and Equipment */
+.sectionGrid {
+	max-width: 1200px;
+	margin: 0 auto 24px;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 24px;
+}
+@media (min-width: 1024px) {
+	.sectionGrid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Subtle editing emphasis */
+.editSection {
+	box-shadow: inset 0 0 0 1px rgba(14,165,233,0.25);
+	background: rgba(14,165,233,0.06);
+}
+
+/* Section title */
+.header {
+	margin: 0 0 12px;
+	color: #f8fafc;
+	font-size: 1rem;
+	font-weight: 800;
+	letter-spacing: 0.2px;
+}
+.headerBar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.headerControls { display: inline-flex; align-items: center; gap: 10px; }
+.buttonTiny { padding: 6px 10px; font-size: 0.7rem; line-height: 1.1; white-space: nowrap; }
+
+/* Two-column info rows */
+.row {
+	display: grid;
+	grid-template-columns: 180px 1fr; /* tighter label column to reduce empty space */
+	gap: 12px 16px;
+	align-items: center;
+	padding: 12px 0;
+	border-top: 1px solid rgba(255,255,255,0.12);
+}
+.row:first-of-type {
+	border-top: none;
+}
+
+/* Special layout for Avatar row: center on desktop */
+.rowAvatar {
+	grid-template-columns: 1fr !important;
+	text-align: center;
+}
+.rowAvatar .label { display: none; }
+.rowAvatar .value { justify-self: center; }
+
+.label {
+	font-size: 0.7rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.6px;
+	color: rgba(229,231,235,0.75);
+}
+
+/* Field icons (white, subtle) for Basic & Pilot sections */
+.section .row .label[data-field]::before,
+.section .fieldRow .label[data-field]::before {
+	content: attr(data-icon);
+	display: inline-block;
+	width: 1em;
+	margin-right: 8px;
+	filter: brightness(2);
+	opacity: 0.9;
+}
+
+/* Map icons per field using Unicode glyphs (monochrome, white) */
+.section .label[data-field="name"] { --icon: "\1F464"; }
+.section .label[data-field="email"] { --icon: "\2709"; }
+.section .label[data-field="phone"] { --icon: "\260E"; }
+.section .label[data-field="gender"] { --icon: "\2640"; }
+.section .label[data-field="dob"] { --icon: "\1F4C5"; }
+.section .label[data-field="about"] { --icon: "\1F4DD"; }
+.section .label[data-field="kind"] { --icon: "\2699"; }
+.section .label[data-field="cert"] { --icon: "\2714"; }
+.section .label[data-field="exp"] { --icon: "\23F1"; }
+.section .label[data-field="flights"] { --icon: "\2708"; }
+
+/* Use CSS variable for content so we can keep text-transform on label */
+.section .row .label[data-field]::before,
+.section .fieldRow .label[data-field]::before {
+	content: var(--icon);
+}
+
+/* Desktop scaling to match UserManagement proportions */
+@media (min-width: 900px) {
+	.label { font-size: 0.8rem; }
+	.section .row .label[data-field]::before,
+	.section .fieldRow .label[data-field]::before {
+		font-size: 1rem;   /* enlarge icon */
+		width: 1.2em;      /* give icon a bit more room */
+		margin-right: 10px;
+	}
+}
+
+.value {
+	color: #f1f5f9;
+	font-size: 0.92rem;
+}
+
+.muted {
+	color: rgba(229,231,235,0.65);
+	font-style: italic;
+}
+
+/* Two-column layout for Basic Information rows (modifier on section) */
+.twoCol {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0,1fr));
+	gap: 8px 24px;
+}
+.twoCol .header,
+.twoCol .actions,
+.twoCol .fieldGroup { /* ensure editor spans full width */
+	grid-column: 1 / -1;
+}
+.twoCol .row {
+	border-top: 1px solid rgba(255,255,255,0.12);
+	padding: 12px 0;
+}
+
+/* Actions + buttons (neutral by default; variants below) */
+.actions {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+	justify-content: flex-start; /* align left to avoid pushing empty space right */
+	margin-top: 10px;
+}
+
+/* Compact inline row for avatar actions */
+.buttonRow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: nowrap;
+}
+.buttonRow .button,
+.buttonRow .avatarUploadButton {
+	padding: 6px 10px;
+	font-size: 0.72rem; /* smaller text */
+	letter-spacing: 0.3px;
+	border-radius: 8px;
+	line-height: 1.1; /* keep height compact */
+	width: auto; /* prevent 100% width in compact row */
+	white-space: nowrap; /* keep labels on one line */
+}
+
+.button,
+.avatarUploadButton,
+.addButton,
+.removeButton {
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.4px;
+	padding: 10px 14px;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid;
+	transition: all 0.25s ease;
+	text-transform: uppercase;
+	backdrop-filter: none;
+}
+
+/* Neutral action button (maps to secondaryBtn/actionButton look) */
+.button {
+	background: rgba(255,255,255,0.05);
+	color: #e5e7eb;
+	border-color: rgba(255,255,255,0.15);
+}
+.button:hover {
+	background: rgba(255,255,255,0.1);
+	border-color: rgba(255,255,255,0.25);
+	color: #f9fafb;
+	transform: translateY(-1px);
+}
+.button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+/* Tiny variant for header (overrides base .button sizing) */
+.button.buttonTiny {
+	padding: 4px 8px;
+	font-size: 0.68rem;
+	line-height: 1;
+	border-radius: 6px;
+	min-height: 0;
+}
+
+/* Primary blue (use for key actions like uploads/add) */
+.avatarUploadButton,
+.addButton {
+	background: rgba(59,130,246,0.12);
+	color: #3b82f6;
+	border-color: rgba(59,130,246,0.3);
+}
+.avatarUploadButton:hover,
+.addButton:hover {
+	background: rgba(59,130,246,0.2);
+	border-color: rgba(59,130,246,0.5);
+	transform: translateY(-1px);
+}
+
+/* Destructive (red) */
+.removeButton {
+	background: rgba(220,38,38,0.12);
+	color: #dc2626;
+	border-color: rgba(220,38,38,0.3);
+}
+.removeButton:hover {
+	background: rgba(220,38,38,0.2);
+	border-color: rgba(220,38,38,0.5);
+	transform: translateY(-1px);
+}
+
+/* Stateful status toggle buttons */
+.goActiveBtn {
+	background: rgba(16,185,129,0.12);
+	color: #10b981;
+	border-color: rgba(16,185,129,0.3);
+}
+.goActiveBtn:hover {
+	background: rgba(16,185,129,0.2);
+	border-color: rgba(16,185,129,0.5);
+	transform: translateY(-1px);
+}
+.goOfflineBtn {
+	background: rgba(220,38,38,0.12);
+	color: #dc2626;
+	border-color: rgba(220,38,38,0.3);
+}
+.goOfflineBtn:hover {
+	background: rgba(220,38,38,0.2);
+	border-color: rgba(220,38,38,0.5);
+	transform: translateY(-1px);
+}
+
+/* Inputs */
+.fieldGroup { margin-top: 6px; }
+.fieldRow {
+	display: grid;
+	grid-template-columns: 220px 1fr;
+	gap: 10px 16px;
+	align-items: start;
+	margin-bottom: 12px;
+}
+.input,
+textarea.input,
+select.input {
+	border: 1px solid rgba(255,255,255,0.18);
+	border-radius: 8px;
+	padding: 10px 12px;
+	font-size: 0.85rem;
+	background: rgba(255,255,255,0.06);
+	color: #f3f4f6;
+}
+.input:focus,
+textarea.input:focus,
+select.input:focus {
+	outline: 2px solid #0ea5e980;
+	outline-offset: 1px;
+	background: rgba(255,255,255,0.1);
+}
+
+/* Avatar */
+.avatarWrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.avatarRow { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.avatarStack { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.avatarBox { position: relative; width: 64px; height: 64px; display: inline-block; line-height: 0; overflow: visible; }
+.avatar {
+	width: 64px;
+	height: 64px;
+	border-radius: 8px; /* rectangular, light rounding */
+	object-fit: cover;
+	display: block; /* avoid baseline gap that shifts overlay */
+	border: 1px solid rgba(255,255,255,0.18);
+	background: rgba(255,255,255,0.06);
+	box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.avatarClickable { cursor: pointer; }
+.statusDotOverlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform: translate(-30%, 30%); /* shift from square corner toward circle edge */
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 2px solid #000; /* carve into black cards */
+	display: inline-block;
+	z-index: 2;
+}
+.statusActive { background: #3b82f6; color: #3b82f6; }
+.statusOffline { background: #dc2626; color: #dc2626; }
+.pulse { position: relative; }
+.pulse::after {
+	content: '';
+	position: absolute;
+	inset: -4px; /* ring slightly larger than dot without clipping */
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	opacity: 0.35;
+	animation: pulse 1.5s ease-out infinite;
+}
+.hiddenFileInput { display: none; }
+.uploadProgress { margin-top: 8px; font-size: 0.8rem; color: rgba(248,250,252,0.9); }
+
+/* Inline status to the right of avatar */
+.statusInline { display: inline-flex; align-items: center; gap: 8px; color: #e5e7eb; }
+.dotSmall { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dotGreen { background: #10b981; }
+.dotRed { background: #dc2626; }
+.statusText { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.2px; }
+
+/* Online status */
+.onlineStatus { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.onlineStatusBadge {
+	padding: 6px 12px 6px 10px;
+	border-radius: 16px;
+	font-size: 0.6rem;
+	font-weight: 700;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid currentColor;
+	white-space: nowrap;
+}
+.onlineDot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: currentColor;
+}
+.pulseDot {
+	position: relative;
+}
+.pulseDot::after {
+	content: '';
+	position: absolute;
+	inset: -6px;
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	opacity: 0.35;
+	animation: pulse 1.5s ease-out infinite;
+}
+@keyframes pulse { 0% { transform: scale(0.6); opacity: 0.45; } 70% { transform: scale(1.4); opacity: 0; } 100% { transform: scale(1.6); opacity: 0; } }
+
+.online { background: rgba(16,185,129,0.12); color: #10b981; border-color: rgba(16,185,129,0.3); }
+.offline { background: rgba(156,163,175,0.12); color: #9ca3af; border-color: rgba(156,163,175,0.3); }
+
+/* Location selector */
+.locationSelector { margin-top: 12px; }
+.locationGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 10px;
+	margin-top: 8px;
+}
+.locationOption {
+	background: rgba(255,255,255,0.05);
+	color: #e5e7eb;
+	border: 1px solid rgba(255,255,255,0.15);
+	padding: 10px 14px;
+	border-radius: 10px;
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.locationOption:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+.locationSelected { background: rgba(59,130,246,0.18); color: #93c5fd; border-color: rgba(59,130,246,0.45); }
+
+/* Certification status */
+.statusBadge {
+	padding: 6px 12px 6px 10px;
+	border-radius: 16px;
+	font-size: 0.6rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	border: 1px solid currentColor;
+}
+.statusDot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.certified { background: rgba(16,185,129,0.12); color: #10b981; border-color: rgba(16,185,129,0.3); }
+.uncertified { background: rgba(156,163,175,0.12); color: #9ca3af; border-color: rgba(156,163,175,0.3); }
+
+/* Lists and list editor */
+.listEditor { display: grid; gap: 8px; }
+.listItem { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* Files */
+.fileList { list-style: none; padding: 0; margin: 6px 0 0; display: flex; gap: 8px; flex-wrap: wrap; }
+.fileItem { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 8px 10px; color: #f3f4f6; display: flex; align-items: center; gap: 10px; }
+.linkButton { background: none; border: none; color: #0ea5e9; text-decoration: underline; cursor: pointer; font-size: 0.8rem; padding: 0; }
+.inputGroup { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.fileInput { border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 8px 10px; background: rgba(255,255,255,0.06); color: #e5e7eb; }
+
+/* Modal for location selection */
+.modalOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal { background: rgba(0,0,0,1); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.6); }
+.modalHeader { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 0; color: #e5e7eb; font-weight: 800; }
+.closeBtn { background: rgba(255,255,255,0.05); color: #e5e7eb; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.closeBtn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+.modalBody { padding: 16px; }
+.modalActions { display: flex; justify-content: flex-end; gap: 10px; padding: 0 16px 16px; }
+
+/* Image preview overlay */
+.imageOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1500; padding: 20px; cursor: zoom-out; }
+.imageBox { position: relative; width: 90%; height: 90%; max-width: 1200px; max-height: 90vh; }
+.image { object-fit: contain; }
+.imageClose { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px); }
+
+/* Mobile responsiveness, matched to UserManagement */
+@media (max-width: 600px) {
+	.container::before { background: #000000; }
+	.row, .fieldRow { grid-template-columns: 1fr; }
+	.twoCol { grid-template-columns: 1fr; }
+	.actions { justify-content: stretch; }
+	.button, .avatarUploadButton, .addButton, .removeButton { width: 100%; }
+}
