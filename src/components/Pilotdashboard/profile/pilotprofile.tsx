@@ -286,7 +286,7 @@ export default function PilotProfile() {
     <div className={styles.container}>
 
       {/* Profile + Status */}
-      <div className={styles.section}>
+      <div className={`${styles.section} ${styles.profileSection}`}>
         <div className={styles.headerBar}>
           <h3 className={styles.header}>Profile</h3>
           <div className={styles.headerControls}>

@@ -42,18 +42,6 @@
 	z-index: 1;
 }
 
-/* Two-column wrapper for Pilot Information and Equipment */
-.sectionGrid {
-	max-width: 1200px;
-	margin: 0 auto 24px;
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 24px;
-}
-@media (min-width: 1024px) {
-	.sectionGrid { grid-template-columns: 1fr 1fr; }
-}
-
 /* Subtle editing emphasis */
 .editSection {
 	box-shadow: inset 0 0 0 1px rgba(14,165,233,0.25);
@@ -472,4 +460,8 @@ select.input:focus {
 	.twoCol { grid-template-columns: 1fr; }
 	.actions { justify-content: stretch; }
 	.button, .avatarUploadButton, .addButton, .removeButton { width: 100%; }
+	/* Hide the "Profile" heading on mobile and center status/controls */
+	.profileSection .header { display: none; }
+	.profileSection .headerBar { justify-content: center; }
+	.profileSection .headerControls { flex-wrap: wrap; justify-content: center; }
 }
