@@ -1,0 +1,116 @@
+/**
+ * Header Snippet Template
+ * Purpose: Standardized file-level comment block for significant components,
+ *          context providers, complex layout orchestrators, or domain modules.
+ * When to use: See sections below. Keep it concise & value-focused.
+ *
+ * Replace ALL <PLACEHOLDER> tokens. Remove sections that don't apply.
+ */
+
+/**
+ * Component: <ComponentName>
+ * Location: <relative/path/from/src>
+ *
+ * Responsibility:
+ *   <Single sentence describing what this file does — avoid AND/OR chains>
+ *
+ * Inputs (Props):
+ *   <propName> – <purpose>
+ *   <propName?> – <purpose>
+ *   (Remove if none)
+ *
+ * External Data / Dependencies:
+ *   - <e.g. Supabase profile fetch>
+ *   - <e.g. WebSocket events>
+ *
+ * Outputs / Effects:
+ *   - <e.g. Updates remote status>
+ *   - <e.g. Emits onSave callback>
+ *
+ * State:
+ *   Local: <list local state keys or "none">
+ *   Shared: <context name or "none">
+ *
+ * Data Flow:
+ *   1. <Step>
+ *   2. <Step>
+ *
+ * Layout:
+ *   <Grid vs Flex rationale, breakpoint behavior>
+ *
+ * Styling Notes:
+ *   <Token usage, no inline styles, ref to module css>
+ *
+ * Accessibility:
+ *   <Roles, aria labels, keyboard interactions>
+ *
+ * Performance:
+ *   <Memoization, lazy loading, avoided unnecessary re-renders>
+ *
+ * Security / Privacy:
+ *   <No PII logged / sanitization notes>
+ *
+ * Change Log:
+ *   - YYYY-MM-DD: <Meaningful change>
+ *
+ * TODO:
+ *   - <Actionable next improvement>
+ *
+ * References:
+ *   - docs/coding-style.md §6 (State & Data Flow)
+ *   - docs/coding-style.md §16 (Responsive)
+ */
+
+// --- Variants ---
+// Context Provider Header (shorter)
+/**
+ * Context: <ContextName>
+ * Scope: <What domain this covers>
+ * Provides: <key pieces of value>
+ * Excludes: <what deliberately not included>
+ * Life Cycle: <where instantiated>
+ * Performance: <memoization / splitting policy>
+ * References: coding-style §6.1
+ */
+
+// Utility Module Header (optional, only if non-trivial)
+/**
+ * Utility: <FunctionGroup>
+ * Purpose: <Domain purpose>
+ * Pure: yes/no (explain side effects if any)
+ * Edge Cases: <list or link to test cases>
+ */
+
+// CSS Module Header (when needed)
+/*
+ * Module: <file>.module.css
+ * Purpose: <Layout / styling scope>
+ * Grid/Flex: <pattern summary>
+ * Breakpoints: <list used>
+ * Notes: No inline styles; see coding-style §16.
+ */
+
+// --- Usage Guidance ---
+// 1. Insert appropriate variant at very top of file.
+// 2. Remove empty sections entirely (avoid leaving placeholders blank).
+// 3. Keep lines tight; prefer bullet points over prose paragraphs.
+// 4. Update Change Log only for notable structural or behavioral changes.
+// 5. Delete TODO once resolved in the same commit as implementation.
+
+// --- Example Filled (Component) ---
+/**
+ * Component: PilotProfilePanel
+ * Location: src/components/pilotdashboard/profile/pilotprofile.tsx
+ * Responsibility: Orchestrates pilot profile view, status toggle, avatar upload & equipment sections.
+ * Inputs (Props): pilot – normalized pilot entity; onRefresh – refetch trigger
+ * External Data: Supabase storage (avatar), pilot status update RPC
+ * Outputs: Remote status mutation, toast notifications via toast helper
+ * State: Local: editingMode, avatarPreview; Shared: none
+ * Data Flow: 1. Parent supplies pilot; 2. Local edits; 3. Mutations → Supabase → onRefresh()
+ * Layout: Grid sections; single column mobile → 2 columns ≥768px
+ * Styling Notes: Tokens for spacing (16/24), subtle borders rgba white 0.1
+ * Accessibility: Avatar button labeled; focus rings preserved
+ * Performance: No heavy memo; minimal state surface
+ * Change Log: 2025-09-25 initial header added
+ * References: docs/coding-style.md §6, §16
+ */

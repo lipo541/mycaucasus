@@ -1,0 +1,20 @@
+.page {
+  /* Fill the viewport height fully and account for modern mobile browsers */
+  min-height: 100dvh; /* dynamic viewport height */
+  display: block;
+  padding: 24px 0 48px;
+  /* full-width hero background with dark overlay for readability */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+    url("/assets/hero/tandem-1920.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed; /* keep image fixed while content scrolls */
+}
+
+/* Fallback for older Safari that doesn't support dvh well */
+@supports not (height: 1dvh) {
+  .page {
+    min-height: 100vh;
+  }
+}

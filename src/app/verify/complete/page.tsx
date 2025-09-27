@@ -1,6 +1,11 @@
 "use client";
-import CompleteVerification from '@/components/registration/verification/CompleteVerification';
+import CompleteVerification from "@/components/registration/verification/CompleteVerification";
+import styles from "./page.module.css";
 
 export default function VerifyCompletePage() {
-  return <CompleteVerification />;
+  return (
+    <section className={styles.page}>
+      <CompleteVerification />
+    </section>
+  );
 }

@@ -1,18 +1,101 @@
-.container { max-width: 1040px; margin: 2rem auto; padding: 0 1rem 2rem; }
-.backBar { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
-.backBtn { display: inline-flex; align-items: center; gap: .5rem; color: #9aa4af; font-size: .95rem; background: transparent; border: 0; padding: .25rem .5rem; cursor: pointer; border-radius: 8px; }
-.backBtn:hover { background: rgba(255,255,255,.06); color: #cbd5e1; }
-.title { font-size: 2rem; font-weight: 800; margin: .5rem 0 .25rem; letter-spacing: .3px; }
-.subtitle { color: #a3a3a3; margin: 0 0 1.25rem; }
-.choicesGrid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
-@media (min-width: 900px) { .choicesGrid { grid-template-columns: 1fr 1fr; } }
-.card { border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 1rem; background: rgba(255,255,255,.02); transition: border-color .18s ease, background .18s ease, transform .18s ease; }
-.card:hover { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.03); transform: translateY(-1px); }
-.cardTitle { font-size: 1.35rem; font-weight: 800; margin: .25rem 0 .35rem; }
-.cardDesc { color: #a3a3a3; margin: 0 0 .85rem; }
-.cardAction { width: 100%; }
-.formHeader { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-top: .5rem; }
-.modePill { font-size: .8rem; color: #cbd5e1; background: rgba(14,165,233,.15); border: 1px solid rgba(14,165,233,.25); padding: .25rem .6rem; border-radius: 999px; }
-.formWrap { margin-top: 1rem; }
-.linkReset { color: #60a5fa; background: transparent; border: 0; padding: .25rem .5rem; border-radius: 8px; cursor: pointer; }
-.linkReset:hover { text-decoration: underline; }
+.container {
+  max-width: 1040px;
+  margin: 2rem auto;
+  padding: 0 1rem 2rem;
+}
+.backBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9aa4af;
+  font-size: 0.95rem;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0.5rem 0 0.25rem;
+  letter-spacing: 0.3px;
+}
+.subtitle {
+  color: #a3a3a3;
+  margin: 0 0 1.25rem;
+}
+.choicesGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 900px) {
+  .choicesGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.18s ease, background 0.18s ease,
+    transform 0.18s ease;
+}
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  transform: translateY(-1px);
+}
+.cardTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0.25rem 0 0.35rem;
+}
+.cardDesc {
+  color: #a3a3a3;
+  margin: 0 0 0.85rem;
+}
+.cardAction {
+  width: 100%;
+}
+.formHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.modePill {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+.formWrap {
+  margin-top: 1rem;
+}
+.linkReset {
+  color: #60a5fa;
+  background: transparent;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.linkReset:hover {
+  text-decoration: underline;
+}

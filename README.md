@@ -1,7 +1,52 @@
 # mycaucasus
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Next.js application with a strict component architecture, documented design tokens, and AI‑assisted development guidelines.
+
+## Key Internal Docs
+
+| Topic                           | File                           |
+| ------------------------------- | ------------------------------ |
+| Design Tokens                   | `docs/design-tokens.md`        |
+| Coding & Structural Style Guide | `docs/coding-style.md`         |
+| Copilot / AI Rules              | `docs/copilot-instructions.md` |
+| Header Comment Templates        | `docs/header-snippet.ts.txt`   |
+
+## Component / Folder Pattern
+
+One component per folder (lowercase / kebab if multi-word):
+
+```
+src/components/<domain-group>/<component>/<component>.tsx
+src/components/<domain-group>/<component>/<component>.module.css
+```
+
+Example:
+
+```
+src/components/navigation/navbar/navbar.tsx
+src/components/navigation/navbar/navbar.module.css
+```
+
+Grouping: multiple related siblings live under a plural domain folder (`navigation/`, `notifications/`, `profile/`). Never put raw component `.tsx` directly under `components/`.
+
+Props vs Context (summary): use props for 1–2 level simple data; context only when 3+ consumer branches or cross‑cutting state (see `docs/coding-style.md §6.1`).
+
+Responsive (summary): Grid-first for multi‑axis layouts; flex for one dimension. Standard breakpoints: 640, 768, 1024, 1280, 1536. No inline styles—use module CSS (see `docs/coding-style.md §16`).
+
+AI / Copilot (summary): enforce folder pattern, reject ad-hoc breakpoints & inline styles, suggest grid for complex layout, recommend context only after threshold. Full details: `docs/copilot-instructions.md`.
+
+Contribution Workflow:
+
+1. Scaffold folder + `.tsx` + `.module.css`.
+2. Add header snippet if orchestrating.
+3. Skeleton render → styles with tokens.
+4. Implement logic; evaluate context need.
+5. Responsive check (320→1920, no horizontal scroll).
+6. Commit (`scope: action`).
+
+Refactor Triggers: file >250 lines; 3+ duplicate conditionals; prop chain >2 levels; inline style appears.
+
+---
 
 ## Getting Started
 
@@ -36,20 +81,92 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+## Project Structure (High-Level)
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+	app/          # Next.js App Router (routes, layouts, server components)
+	components/   # One-folder-per-component (UI + CSS Modules)
+	config/       # Static configuration (feature flags, hero panels)
+	lib/          # Reusable logic (Supabase client, utils, bus)
+	...
+docs/           # Internal documentation
+scripts/        # Tooling & maintenance scripts
+public/         # Static assets (images, flags, hero media)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Create a New Component (Example)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
+src/components/hero/hero-banner/hero-banner.tsx
+src/components/hero/hero-banner/hero-banner.module.css
+```
+
+```tsx
+import styles from "./hero-banner.module.css";
+
+export function HeroBanner({
+  title,
+  subtitle,
+}: {
+  title: string;
+  subtitle?: string;
+}) {
+  return (
+    <section className={styles.root}>
+      <h1 className={styles.title}>{title}</h1>
+      {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+    </section>
+  );
+}
+```
+
+```css
+.root {
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+@media (min-width: 768px) {
+  .root {
+    gap: 24px;
+  }
+}
+.title {
+  font-size: clamp(1.75rem, 2.6vw, 3rem);
+}
+.subtitle {
+  opacity: 0.75;
+}
+```
+
+## Formatting & Editor
+
+Workspace settings (`.vscode/settings.json`) enforce format on save, import organization, absolute import preference (`@/`), and CSS Modules IntelliSense.
+
+## Extending Design Tokens
+
+Add new tokens to `docs/design-tokens.md` first; then consume. Avoid scattering raw values.
+
+## Accessibility Snapshot
+
+Focus visible, semantic elements, labeled controls. Avoid div-only interactive patterns.
+
+## Performance Snapshot
+
+Use server components for pure data fetch; context sparingly; lazy-load heavy below-the-fold UI.
+
+---
+
+## Learn More (External)
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Learn Next.js Tutorial](https://nextjs.org/learn)
+- [Next.js GitHub](https://github.com/vercel/next.js/)
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Quickest deployment path: connect repo → set environment vars (`NEXT_PUBLIC_SUPABASE_URL`, keys) → deploy. More: [Next.js deployment docs](https://nextjs.org/docs/deployment).
 
 ## Analytics & Visit Tracking
 
@@ -144,4 +261,3 @@ To remove the job:
 ```
 select cron.unschedule(jobid) from cron.job where jobname='prune_visit_events_job';
 ```
-

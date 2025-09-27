@@ -1,0 +1,41 @@
+{
+  // Formatting & Editor Behavior
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit"
+  },
+  // TypeScript Preferences
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  // CSS Modules Intellisense
+  "css.modules.completion": true,
+  "css.validate": true,
+  // Files
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  // Emmet in TSX
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact",
+    "typescript": "typescriptreact"
+  },
+  // Reduce noise
+  "javascript.suggestionActions.enabled": false,
+  // Accessibility
+  "editor.accessibilitySupport": "on",
+  // Copilot (if installed) inline suggestions enable
+  "github.copilot.inlineSuggest.enable": true,
+  // Prevent accidental large rename suggestions
+  "typescript.suggest.completeFunctionCalls": false,
+  // Enable bracket pair guides for readability
+  "editor.bracketPairColorization.enabled": true,
+  // Format on paste for consistency
+  "editor.formatOnPaste": true,
+  // Disable inline style lint false positives (future customization)
+  "stylelint.enable": true,
+  // Path Intellisense (if extension present) - prefer absolute alias
+  "path-intellisense.mappings": {
+    "@": "${workspaceFolder}/src"
+  }
+}
