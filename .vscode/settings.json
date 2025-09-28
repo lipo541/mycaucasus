@@ -1,6 +1,14 @@
 {
+  // Mute general sounds
+  "audioCues.enabled": "off",
+  "audioCues.volume": 0,
+  "accessibility.signals.enabled": false,
+  // Use visual bell instead of audible ding in terminal
+  "terminal.integrated.enableVisualBell": true,
+
   // Formatting & Editor Behavior
   "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "modificationsIfAvailable",
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
@@ -15,6 +23,20 @@
   // Files
   "files.eol": "\n",
   "files.insertFinalNewline": true,
+  // Reduce file watching pressure on Windows (Watcher/Antivirus)
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/dist/**": true,
+    "**/.turbo/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.turbo": true
+  },
   // Emmet in TSX
   "emmet.includeLanguages": {
     "javascript": "javascriptreact",
@@ -22,10 +44,16 @@
   },
   // Reduce noise
   "javascript.suggestionActions.enabled": false,
-  // Accessibility
-  "editor.accessibilitySupport": "on",
+  // Accessibility: do not force screen reader mode to reduce extra audio
+  "editor.accessibilitySupport": "auto",
   // Copilot (if installed) inline suggestions enable
   "github.copilot.inlineSuggest.enable": true,
+  // TypeScript server memory (large Next.js benefit)
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  // If ESLint installed, run only on save to reduce background work
+  "eslint.run": "onSave",
+  // Optional: reduce Git background activity if lag persists
+  "git.autofetch": false,
   // Prevent accidental large rename suggestions
   "typescript.suggest.completeFunctionCalls": false,
   // Enable bracket pair guides for readability
