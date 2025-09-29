@@ -1,7 +1,6 @@
 {
   // Mute general sounds
   "audioCues.enabled": "off",
-  "audioCues.volume": 0,
   "accessibility.signals.enabled": false,
   // Use visual bell instead of audible ding in terminal
   "terminal.integrated.enableVisualBell": true,
@@ -65,5 +64,6 @@
   // Path Intellisense (if extension present) - prefer absolute alias
   "path-intellisense.mappings": {
     "@": "${workspaceFolder}/src"
-  }
+  },
+  "accessibility.signalOptions.volume": 0
 }
