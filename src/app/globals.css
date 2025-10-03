@@ -88,8 +88,6 @@ h2 { font-size: var(--scale-step-3); line-height: 1.15; }
 h3 { font-size: var(--scale-step-2); line-height: 1.2; }
 h4 { font-size: var(--scale-step-1); line-height: 1.25; }
 
-p, ul, ol { max-width: 70ch; }
-
 small { font-size: 0.8em; }
 
 /* Muted text helper */

@@ -1,0 +1,340 @@
+.root {
+  width: 100%;
+  padding: 4rem 0;
+  padding-top: 5rem;
+  background: var(--color-bg-primary, #000);
+  position: relative;
+  margin-top: 2rem;
+}
+
+/* Section Divider */
+.root::before {
+  content: "";
+  position: absolute;
+  top: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 1200px;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 20%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.2) 80%,
+    transparent 100%
+  );
+  z-index: 10;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #f8fafc);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--color-text-muted, rgba(229, 231, 235, 0.6));
+  margin: 0;
+}
+
+/* Desktop Bento Grid */
+.desktopGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 240px;
+  gap: 1rem;
+}
+
+.imageCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 12px);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08));
+  cursor: pointer;
+  transition: transform 0.3s, border-color 0.3s;
+}
+
+/* First image is featured (larger) */
+.imageCard.featured {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.imageCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-border-hover, rgba(255, 255, 255, 0.15));
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.4s ease-out;
+}
+
+.imageCard:hover .image {
+  transform: scale(1.08);
+}
+
+/* Mobile Horizontal Scroll */
+.mobileScroll {
+  display: none;
+}
+
+/* View All Button */
+.viewAllWrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.viewAllBtn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary, #f8fafc);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.viewAllBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--color-border-hover, rgba(255, 255, 255, 0.18));
+  transform: translateY(-2px);
+}
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightboxContent {
+  position: relative;
+  max-width: 95vw;
+  max-height: 95vh;
+  animation: zoomIn 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.lightboxImage {
+  width: auto;
+  height: auto;
+  max-width: 95vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-lg, 12px);
+}
+
+.imageCaption {
+  text-align: center;
+  color: var(--color-text-muted, rgba(229, 231, 235, 0.8));
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.imageCounter {
+  text-align: center;
+  color: var(--color-text-muted, rgba(229, 231, 235, 0.5));
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.closeBtn {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10001;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+}
+
+.navBtn {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.navBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.prevBtn {
+  left: 2rem;
+}
+
+.nextBtn {
+  right: 2rem;
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding: 3rem 0;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  /* Hide desktop grid on mobile */
+  .desktopGrid {
+    display: none;
+  }
+
+  /* Show horizontal scroll on mobile */
+  .mobileScroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
+    margin: 0 -2rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .mobileScroll::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .mobileScroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  .mobileScroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+
+  .mobileCard {
+    flex-shrink: 0;
+    width: 280px;
+    scroll-snap-align: start;
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.08));
+    cursor: pointer;
+  }
+
+  .mobileImage {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+  }
+
+  .lightbox {
+    padding: 1rem;
+  }
+
+  .closeBtn,
+  .navBtn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .closeBtn {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .prevBtn {
+    left: 1rem;
+  }
+
+  .nextBtn {
+    right: 1rem;
+  }
+
+  .lightboxImage {
+    max-height: 70vh;
+  }
+}

@@ -1,0 +1,195 @@
+.root {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh; /* match home hero */
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+}
+
+.bgStack {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.bgImg {
+  object-fit: cover;
+  filter: brightness(0.8);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  max-width: var(--app-max-width, 1280px);
+  margin: 0 auto;
+  padding-inline: var(--content-x, 16px);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.text h1 {
+  margin: 0 0 0.75rem;
+}
+.headline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.pin {
+  display: inline-flex;
+  color: #ef4444;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+.pinSvg {
+  display: block;
+}
+.text p {
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 60ch;
+}
+
+.overlayTitle {
+  margin-top: 1.1rem;
+  font-size: clamp(1.1rem, 0.9rem + 1.2vw, 1.5rem);
+  font-weight: 700;
+}
+.overlayDesc {
+  margin-top: 0.35rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.points {
+  margin-top: 0.8rem;
+  color: rgba(255, 255, 255, 0.92);
+  padding-left: 1.2rem;
+}
+.points li {
+  margin: 0.2rem 0;
+}
+
+.pricing {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  max-width: 860px;
+}
+.priceCard {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(6px);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  line-height: 1.15;
+}
+.priceName {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.priceValue {
+  font-size: 0.98rem;
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+.priceNote {
+  margin-top: 0.15rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.85rem;
+}
+
+/* Mobile compaction */
+@media (max-width: 640px) {
+  .pricing {
+    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .priceCard {
+    padding: 0.45rem 0.6rem;
+    border-radius: 9px;
+  }
+  .priceName {
+    font-size: 0.9rem;
+  }
+  .priceValue {
+    font-size: 0.9rem;
+    margin-top: 0.1rem;
+  }
+  .priceNote {
+    font-size: 0.8rem;
+  }
+}
+.priceNote {
+  margin-top: 0.2rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+}
+
+.meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.metaItem {
+  display: grid;
+  gap: 0.2rem;
+}
+.metaLabel {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+}
+.metaValue {
+  color: #fff;
+  font-weight: 700;
+}
+
+.actions {
+  margin-top: 1.75rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.btn {
+  position: relative;
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.62rem 1.1rem;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.35s,
+    transform 0.25s;
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.45);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-ghost {
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(6px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.btn-primary {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+.btn-secondary {
+  border-color: rgba(255, 255, 255, 0.22);
+  opacity: 0.95;
+}
+.iconHeart {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.25));
+}
