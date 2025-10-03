@@ -118,6 +118,16 @@ export interface Location {
   hero: LocationHeroData;
   /** Card data (when listing in ActiveLocations component) */
   card: LocationCardData;
+  /** Gallery images (top-level for easier access from database) */
+  gallery?: {
+    src: string;
+    alt: string;
+    srcWebp?: string;
+  }[];
+  /** Flight type packages (top-level for easier access from database) */
+  flyTypes?: FlyType[];
+  /** Detailed information (top-level for easier access from database) */
+  info?: LocationInfo;
 }
 
 export interface LocationsConfig {
@@ -125,245 +135,217 @@ export interface LocationsConfig {
   locations: Location[];
 }
 
-// Static seed data; later this will be fetched from Supabase
-export const LOCATIONS: LocationsConfig = {
-  locations: [
-    {
-      id: "gudauri",
-      href: "/locations/gudauri",
-      hero: {
-        bg: "/assets/hero/tandem-1920.webp",
-        thumb: "/assets/hero/tandem-320.jpg",
-        thumbWebp: "/assets/hero/tandem-320.webp",
-        headline: "გუდაური",
-        tagline: undefined,
-        pin: true,
-        overlayTitle: "დაჯავშნე ფრენა",
-        overlayDesc: "აირჩიე პაკეტი",
-        ctas: [{ label: "დაჯავშნე", href: "#book", variant: "primary" }],
-        meta: [
-          { label: "ადგილმდებარეობა", value: "გუდაური • მცხეთა-მთიანეთი" },
+// ============================================================
+// DEPRECATED: Static Location Data
+// ============================================================
+// ⚠️ This static data is NO LONGER USED in production
+// All location data now comes from Supabase database
+//
+// Migration completed:
+// - page.tsx fetches from Supabase directly
+// - LocationProvider provides data via Context API
+// - All components use useLocation() hook
+//
+// This data is kept temporarily for:
+// 1. Type reference (interfaces above)
+// 2. Development fallback (if database unavailable)
+// 3. ActiveLocations component (until multiple locations exist)
+//
+// TODO: Remove completely once:
+// - Multiple locations added to Supabase
+// - ActiveLocations migrated to fetch from database
+// ============================================================
+
+/*
+export const GUDAURI_LOCATION: Location = {
+  id: "gudauri",
+  href: "/locations/gudauri",
+  hero: {
+    bg: "/assets/hero/tandem-1920.webp",
+    thumb: "/assets/hero/tandem-320.jpg",
+    thumbWebp: "/assets/hero/tandem-320.webp",
+    headline: "გუდაური",
+    tagline: undefined,
+    pin: true,
+    overlayTitle: "დაჯავშნე ფრენა",
+    overlayDesc: "აირჩიე პაკეტი",
+    ctas: [{ label: "დაჯავშნე", href: "#book", variant: "primary" }],
+    meta: [{ label: "ადგილმდებარეობა", value: "გუდაური • მცხეთა-მთიანეთი" }],
+    gallery: [
+      {
+        src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
+        alt: "პარაგლაიდინგი მთებში",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&q=80",
+        alt: "თოვლიანი მწვერვალები",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1605540436563-5bca919ae766?w=800&q=80",
+        alt: "პარაგლაიდერი ჰაერში",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+        alt: "მთების პანორამა",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800&q=80",
+        alt: "მთა და ცა",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&q=80",
+        alt: "ტანდემ ფრენა",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
+        alt: "მთის ლანდშაფტი",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+        alt: "თოვლიანი კავკასიონი",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80",
+        alt: "მთის მწვერვალი",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+        alt: "ალპური პეიზაჟი",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800&q=80",
+        alt: "პარაგლაიდინგი ღრუბლებში",
+      },
+      {
+        src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
+        alt: "ექსტრემალური სპორტი",
+      },
+    ],
+    flyTypes: [
+      {
+        id: "standard",
+        name: "სტანდარტული ფრენა",
+        duration: "15-20 წუთი",
+        price: 250,
+        description:
+          "იდეალური პირველი გამოცდილებისთვის. ტანდემ ფრენა გამოცდილ ინსტრუქტორთან ერთად. უსაფრთხო და კომფორტული ფრენა საშუალო სიმაღლეზე.",
+        features: [
+          "15-20 წუთიანი ფრენა",
+          "გამოცდილი ინსტრუქტორი",
+          "უსაფრთხოების სრული აღჭურვილობა",
+          "ფოტო/ვიდეო სერვისი (დამატებით)",
+          "ინსტრუქტაჟი და ტრენინგი",
         ],
-        gallery: [
-          {
-            src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
-            alt: "პარაგლაიდინგი მთებში",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&q=80",
-            alt: "თოვლიანი მწვერვალები",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1605540436563-5bca919ae766?w=800&q=80",
-            alt: "პარაგლაიდერი ჰაერში",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-            alt: "მთების პანორამა",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=800&q=80",
-            alt: "მთა და ცა",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&q=80",
-            alt: "ტანდემ ფრენა",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
-            alt: "მთის ლანდშაფტი",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-            alt: "თოვლიანი კავკასიონი",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80",
-            alt: "მთის მწვერვალი",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-            alt: "ალპური პეიზაჟი",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=800&q=80",
-            alt: "პარაგლაიდინგი ღრუბლებში",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
-            alt: "ექსტრემალური სპორტი",
-          },
+        recommended: false,
+      },
+      {
+        id: "extreme",
+        name: "ექსტრემალური ფრენა",
+        duration: "25-30 წუთი",
+        price: 350,
+        description:
+          "ადრენალინის მოყვარულთათვის! მაღალი სიმაღლიდან ფრენა აკრობატიკული ელემენტებით. სპირალები, ვიზაჟები და სხვა ექსტრემალური მანევრები.",
+        features: [
+          "25-30 წუთიანი ფრენა",
+          "აკრობატიკული ელემენტები",
+          "სპირალები და ვიზაჟები",
+          "მაქსიმალური ადრენალინი",
+          "უფასო ფოტო/ვიდეო",
+          "პრემიუმ ინსტრუქტორი",
         ],
-        flyTypes: [
-          {
-            id: "standard",
-            name: "სტანდარტული ფრენა",
-            duration: "15-20 წუთი",
-            price: 250,
-            description:
-              "იდეალური პირველი გამოცდილებისთვის. ტანდემ ფრენა გამოცდილ ინსტრუქტორთან ერთად. უსაფრთხო და კომფორტული ფრენა საშუალო სიმაღლეზე.",
-            features: [
-              "15-20 წუთიანი ფრენა",
-              "გამოცდილი ინსტრუქტორი",
-              "უსაფრთხოების სრული აღჭურვილობა",
-              "ფოტო/ვიდეო სერვისი (დამატებით)",
-              "ინსტრუქტაჟი და ტრენინგი",
-            ],
-            recommended: false,
-          },
-          {
-            id: "extreme",
-            name: "ექსტრემალური ფრენა",
-            duration: "25-30 წუთი",
-            price: 350,
-            description:
-              "ადრენალინის მოყვარულთათვის! მაღალი სიმაღლიდან ფრენა აკრობატიკული ელემენტებით. სპირალები, ვიზაჟები და სხვა ექსტრემალური მანევრები.",
-            features: [
-              "25-30 წუთიანი ფრენა",
-              "აკრობატიკული ელემენტები",
-              "სპირალები და ვიზაჟები",
-              "მაქსიმალური ადრენალინი",
-              "უფასო ფოტო/ვიდეო",
-              "პრემიუმ ინსტრუქტორი",
-            ],
-            recommended: true,
-          },
-          {
-            id: "long",
-            name: "ხანგრძლივი ფრენა",
-            duration: "40-50 წუთი",
-            price: 500,
-            description:
-              "მაქსიმალური ფრენის დრო პანორამული ხედებით. შესაძლებლობა დაათვალიეროთ მთელი რეგიონი ჰაერიდან. მშვიდი და რელაქსირებული ფრენა.",
-            features: [
-              "40-50 წუთიანი ფრენა",
-              "პანორამული ხედები",
-              "რამდენიმე ფოტო პაუზა",
-              "უფასო ფოტო/ვიდეო პაკეტი",
-              "VIP ინსტრუქტორი",
-              "სუვენირი საჩუქრად",
-            ],
-            recommended: false,
-          },
+        recommended: true,
+      },
+      {
+        id: "long",
+        name: "ხანგრძლივი ფრენა",
+        duration: "40-50 წუთი",
+        price: 500,
+        description:
+          "მაქსიმალური ფრენის დრო პანორამული ხედებით. შესაძლებლობა დაათვალიეროთ მთელი რეგიონი ჰაერიდან. მშვიდი და რელაქსირებული ფრენა.",
+        features: [
+          "40-50 წუთიანი ფრენა",
+          "პანორამული ხედები",
+          "რამდენიმე ფოტო პაუზა",
+          "უფასო ფოტო/ვიდეო პაკეტი",
+          "VIP ინსტრუქტორი",
+          "სუვენირი საჩუქრად",
         ],
-        locationInfo: {
-          title: "გუდაური - პარაგლაიდინგის სამოთხე კავკასიონში",
-          intro:
-            "გუდაური საქართველოს ერთ-ერთი ყველაზე პოპულარული პარაგლაიდინგის ადგილია. 2196 მეტრ სიმაღლეზე მდებარე ეს კურორტი სრულყოფილ პირობებს გთავაზობთ ფრენისთვის - სტაბილური ქარის დინებები, უსაფრთხო დაშვების და დასაფრენი ადგილები და გასაოცარი პანორამული ხედები კავკასიონის მთიანეთზე.",
-          sections: [
-            {
-              title: "რატომ გუდაური?",
-              content:
-                "გუდაური განთავსებულია კავკასიონის ქედის მთავარ გზაზე, თბილისიდან დაახლოებით 120 კმ-ში. მისი უნიკალური ლოკაცია უზრუნველყოფს იდეალურ ფრენის პირობებს მთელი წლის განმავლობაში. მთების ამფითეატრი და ვრცელი ველები უსაფრთხო ფრენის საუკეთესო გარანტიაა.",
-            },
-            {
-              title: "ფრენის პირობები",
-              content:
-                "გუდაურში ფრენა შესაძლებელია აპრილიდან ნოემბრამდე, თუმცა საუკეთესო პირობები მაისიდან ოქტომბრამდეა. ამ პერიოდში ქარი სტაბილურია, ხილვადობა შესანიშნავი, ხოლო ტემპერატურა კომფორტული. დაშვების ადგილი მდებარეობს 2300-2400 მეტრ სიმაღლეზე, ხოლო დასაფრენი ზონა - 2000 მეტრზე.",
-            },
-            {
-              title: "რას ნახავთ ფრენისას",
-              content:
-                "ჰაერიდან თვალწარმტაცი ხედები იშლება კავკასიონის თოვლიან მწვერვალებზე, მათ შორის ყაზბეგზე. ქვემოთ გადაჭიმულია ღრმა ხეობები და მწვანე ველები. კარგი ამინდის პირობებში ხილვადობა აღწევს 50-70 კმ-ს, რაც საშუალებას გაძლევთ დაინახოთ კავკასიონის უნიკალური ლანდშაფტი ფრინველის თვალით.",
-            },
-            {
-              title: "უსაფრთხოება და კომფორტი",
-              content:
-                "ჩვენი ყველა პილოტი არის სერტიფიცირებული პროფესიონალი 5+ წლიანი გამოცდილებით. გამოვიყენებთ მხოლოდ თანამედროვე, რეგულარულად შემოწმებულ აღჭურვილობას. თითოეული ფრენის წინ ტარდება დეტალური ინსტრუქტაჟი და უსაფრთხოების ბრიფინგი. სამედიცინო დახმარება ხელმისაწვდომია 24/7.",
-            },
-          ],
-          highlights: [
-            {
-              title: "სიმაღლე",
-              value: "2196 მ",
-              icon: "mountain",
-            },
-            {
-              title: "ფრენის სეზონი",
-              value: "აპრილი - ნოემბერი",
-              icon: "calendar",
-            },
-            {
-              title: "მანძილი თბილისიდან",
-              value: "120 კმ",
-              icon: "location",
-            },
-            {
-              title: "ფრენის ხანგრძლივობა",
-              value: "15-50 წუთი",
-              icon: "clock",
-            },
-          ],
-          tips: [
-            "აიღეთ თბილი ტანისამოსი - სიმაღლეზე ტემპერატურა დაბალია",
-            "გამოიყენეთ მზისგან დამცავი კრემი - მზე მთებში უფრო ინტენსიურია",
-            "ფრენამდე 2 საათით ადრე არ მიირთვათ მძიმე საკვები",
-            "დაიცავით ინსტრუქტორის ყველა მითითება და რჩევა",
-            "წაიღეთ კამერა ან სმართფონი - ხედები დაუვიწყარია!",
-            "დაჯავშნეთ ფრენა წინასწარ, განსაკუთრებით სეზონის პიკზე",
-          ],
+        recommended: false,
+      },
+    ],
+    locationInfo: {
+      title: "გუდაური - პარაგლაიდინგის სამოთხე კავკასიონში",
+      intro:
+        "გუდაური საქართველოს ერთ-ერთი ყველაზე პოპულარული პარაგლაიდინგის ადგილია. 2196 მეტრ სიმაღლეზე მდებარე ეს კურორტი სრულყოფილ პირობებს გთავაზობთ ფრენისთვის - სტაბილური ქარის დინებები, უსაფრთხო დაშვების და დასაფრენი ადგილები და გასაოცარი პანორამული ხედები კავკასიონის მთიანეთზე.",
+      sections: [
+        {
+          title: "რატომ გუდაური?",
+          content:
+            "გუდაური განთავსებულია კავკასიონის ქედის მთავარ გზაზე, თბილისიდან დაახლოებით 120 კმ-ში. მისი უნიკალური ლოკაცია უზრუნველყოფს იდეალურ ფრენის პირობებს მთელი წლის განმავლობაში. მთების ამფითეატრი და ვრცელი ველები უსაფრთხო ფრენის საუკეთესო გარანტიაა.",
         },
-      },
-      card: {
-        name: "გუდაური",
-        region: "მცხეთა-მთიანეთი",
-        tagline: "პარაგლაიდინგი კავკასიონზე",
-        thumbnail: "/assets/hero/tandem-320.jpg",
-        thumbnailWebp: "/assets/hero/tandem-320.webp",
-        status: "active",
-        altitude: 2196,
-        active: true,
-      },
+        {
+          title: "ფრენის პირობები",
+          content:
+            "გუდაურში ფრენა შესაძლებელია აპრილიდან ნოემბრამდე, თუმცა საუკეთესო პირობები მაისიდან ოქტომბრამდეა. ამ პერიოდში ქარი სტაბილურია, ხილვადობა შესანიშნავი, ხოლო ტემპერატურა კომფორტული. დაშვების ადგილი მდებარეობს 2300-2400 მეტრ სიმაღლეზე, ხოლო დასაფრენი ზონა - 2000 მეტრზე.",
+        },
+        {
+          title: "რას ნახავთ ფრენისას",
+          content:
+            "ჰაერიდან თვალწარმტაცი ხედები იშლება კავკასიონის თოვლიან მწვერვალებზე, მათ შორის ყაზბეგზე. ქვემოთ გადაჭიმულია ღრმა ხეობები და მწვანე ველები. კარგი ამინდის პირობებში ხილვადობა აღწევს 50-70 კმ-ს, რაც საშუალებას გაძლევთ დაინახოთ კავკასიონის უნიკალური ლანდშაფტი ფრინველის თვალით.",
+        },
+        {
+          title: "უსაფრთხოება და კომფორტი",
+          content:
+            "ჩვენი ყველა პილოტი არის სერტიფიცირებული პროფესიონალი 5+ წლიანი გამოცდილებით. გამოვიყენებთ მხოლოდ თანამედროვე, რეგულარულად შემოწმებულ აღჭურვილობას. თითოეული ფრენის წინ ტარდება დეტალური ინსტრუქტაჟი და უსაფრთხოების ბრიფინგი. სამედიცინო დახმარება ხელმისაწვდომია 24/7.",
+        },
+      ],
+      highlights: [
+        {
+          title: "სიმაღლე",
+          value: "2196 მ",
+          icon: "mountain",
+        },
+        {
+          title: "ფრენის სეზონი",
+          value: "აპრილი - ნოემბერი",
+          icon: "calendar",
+        },
+        {
+          title: "მანძილი თბილისიდან",
+          value: "120 კმ",
+          icon: "location",
+        },
+        {
+          title: "ფრენის ხანგრძლივობა",
+          value: "15-50 წუთი",
+          icon: "clock",
+        },
+      ],
+      tips: [
+        "აიღეთ თბილი ტანისამოსი - სიმაღლეზე ტემპერატურა დაბალია",
+        "გამოიყენეთ მზისგან დამცავი კრემი - მზე მთებში უფრო ინტენსიურია",
+        "ფრენამდე 2 საათით ადრე არ მიირთვათ მძიმე საკვები",
+        "დაიცავით ინსტრუქტორის ყველა მითითება და რჩევა",
+        "წაიღეთ კამერა ან სმართფონი - ხედები დაუვიწყარია!",
+        "დაჯავშნეთ ფრენა წინასწარ, განსაკუთრებით სეზონის პიკზე",
+      ],
     },
-    {
-      id: "kazbegi",
-      href: "/locations/kazbegi",
-      hero: {
-        bg: "/assets/hero/training-1920.webp",
-        thumb: "/assets/hero/training-320.jpg",
-        thumbWebp: "/assets/hero/training-320.webp",
-        headline: "ყაზბეგი",
-        pin: true,
-        overlayTitle: "ფრენა მწვერვალებთან",
-        overlayDesc: "გამოცდილება ბუნებასთან ერთად",
-        meta: [
-          { label: "ადგილმდებარეობა", value: "ყაზბეგი • მცხეთა-მთიანეთი" },
-        ],
-      },
-      card: {
-        name: "ყაზბეგი",
-        region: "მცხეთა-მთიანეთი",
-        tagline: "ფრენა მწვერვალების ფონზე",
-        thumbnail: "/assets/hero/training-320.jpg",
-        thumbnailWebp: "/assets/hero/training-320.webp",
-        status: "active",
-        altitude: 1750,
-        active: true,
-      },
-    },
-    {
-      id: "batumi",
-      href: "/locations/batumi",
-      hero: {
-        bg: "/assets/hero/community-1920.webp",
-        thumb: "/assets/hero/community-320.jpg",
-        thumbWebp: "/assets/hero/community-320.webp",
-        headline: "ბათუმი",
-        pin: true,
-        overlayTitle: "ზღვასთან ფრენა",
-        overlayDesc: "სეზონური შეთავაზებები",
-        meta: [{ label: "ადგილმდებარეობა", value: "ბათუმი • აჭარა" }],
-      },
-      card: {
-        name: "ბათუმი",
-        region: "აჭარა",
-        tagline: "ფრენა შავი ზღვის ზემოთ",
-        thumbnail: "/assets/hero/community-320.jpg",
-        thumbnailWebp: "/assets/hero/community-320.webp",
-        status: "seasonal",
-        altitude: 250,
-        active: false,
-      },
-    },
-  ],
+  },
+  card: {
+    name: "გუდაური",
+    region: "მცხეთა-მთიანეთი",
+    tagline: "პარაგლაიდინგი კავკასიონზე",
+    thumbnail: "/assets/hero/tandem-320.jpg",
+    thumbnailWebp: "/assets/hero/tandem-320.webp",
+    status: "active",
+    altitude: 2196,
+    active: true,
+  },
+};
+*/
+
+// Temporary empty fallback for ActiveLocations component
+// TODO: Migrate ActiveLocations to fetch from Supabase
+export const LOCATIONS: LocationsConfig = {
+  locations: [], // Now empty - all data from Supabase
 };

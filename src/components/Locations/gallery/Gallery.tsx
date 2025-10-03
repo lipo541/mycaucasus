@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocation } from "@/components/Locations/LocationContext";
 import { LOCATIONS } from "@/config/locations";
 import Image from "next/image";
 import { useState } from "react";
@@ -13,11 +14,30 @@ export default function Gallery({ locationId = "gudauri" }: GalleryProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Find the location by ID
-  const location = LOCATIONS.locations.find((loc) => loc.id === locationId);
-  const gallery = location?.hero.gallery || [];
+  // Try to get location from Context first (dynamic from database)
+  let contextLocation;
+  try {
+    const ctx = useLocation();
+    contextLocation = ctx.location;
+  } catch {
+    contextLocation = null;
+  }
+
+  // Fallback to static LOCATIONS config if no context
+  const location =
+    contextLocation || LOCATIONS.locations.find((loc) => loc.id === locationId);
+  const gallery = location?.gallery || location?.hero?.gallery || [];
+
+  console.log("🖼️ Gallery Debug:", {
+    locationId: location?.id,
+    hasLocation: !!location,
+    galleryLength: gallery.length,
+    gallery: gallery,
+    rawLocation: location,
+  });
 
   if (gallery.length === 0) {
+    console.warn("⚠️ Gallery is empty for location:", location?.id);
     return null;
   }
 

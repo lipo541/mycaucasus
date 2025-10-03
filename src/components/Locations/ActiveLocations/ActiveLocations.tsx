@@ -1,8 +1,9 @@
 "use client";
 
-import { LOCATIONS } from "@/config/locations";
+import { createClient } from "@supabase/supabase-js";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import styles from "./ActiveLocations.module.css";
 
 interface ActiveLocationsProps {
@@ -10,11 +11,106 @@ interface ActiveLocationsProps {
   excludeId?: string;
 }
 
+interface LocationCard {
+  id: string;
+  href: string;
+  card_name: string;
+  card_region: string;
+  card_tagline: string;
+  card_thumbnail: string;
+  card_thumbnail_webp: string;
+  card_status: string;
+  card_altitude: number;
+  card_active: boolean;
+}
+
 export default function ActiveLocations({ excludeId }: ActiveLocationsProps) {
-  // Filter out current location if excludeId is provided
-  const visibleLocations = LOCATIONS.locations.filter(
-    (loc) => loc.id !== excludeId
-  );
+  const [locations, setLocations] = useState<LocationCard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLocations() {
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+          console.error("❌ Missing Supabase credentials");
+          setLoading(false);
+          return;
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        const { data, error } = await supabase
+          .from("locations")
+          .select(
+            `
+            id,
+            href,
+            card_thumbnail,
+            card_thumbnail_webp,
+            card_status,
+            card_altitude,
+            card_active,
+            location_translations!inner (
+              language_code,
+              card_name,
+              card_region,
+              card_tagline
+            )
+          `
+          )
+          .eq("is_published", true)
+          .eq("location_translations.language_code", "ka")
+          .eq("card_active", true);
+
+        if (error) {
+          console.error("❌ Failed to fetch locations:", error);
+          setLoading(false);
+          return;
+        }
+
+        // Transform to flat structure
+        const transformedLocations: LocationCard[] =
+          data?.map((loc: any) => ({
+            id: loc.id,
+            href: loc.href,
+            card_thumbnail: loc.card_thumbnail,
+            card_thumbnail_webp: loc.card_thumbnail_webp,
+            card_status: loc.card_status,
+            card_altitude: loc.card_altitude,
+            card_active: loc.card_active,
+            card_name: loc.location_translations[0]?.card_name || "",
+            card_region: loc.location_translations[0]?.card_region || "",
+            card_tagline: loc.location_translations[0]?.card_tagline || "",
+          })) || [];
+
+        setLocations(transformedLocations);
+      } catch (err) {
+        console.error("❌ Error fetching locations:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLocations();
+  }, []);
+
+  // Filter out current location
+  const visibleLocations = locations.filter((loc) => loc.id !== excludeId);
+
+  if (loading) {
+    return (
+      <section className={styles.root}>
+        <div className={styles.container}>
+          <p style={{ textAlign: "center", padding: "2rem" }}>
+            ⏳ ლოკაციების ჩატვირთვა...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   if (visibleLocations.length === 0) {
     return null; // Don't render section if no locations to show
@@ -32,17 +128,19 @@ export default function ActiveLocations({ excludeId }: ActiveLocationsProps) {
 
         <div className={styles.grid}>
           {visibleLocations.map((loc) => {
-            const card = loc.card;
             return (
               <Link key={loc.id} href={loc.href} className={styles.card}>
                 <div className={styles.cardThumb}>
                   <picture>
-                    {card.thumbnailWebp && (
-                      <source srcSet={card.thumbnailWebp} type="image/webp" />
+                    {loc.card_thumbnail_webp && (
+                      <source
+                        srcSet={loc.card_thumbnail_webp}
+                        type="image/webp"
+                      />
                     )}
                     <Image
-                      src={card.thumbnail}
-                      alt={card.name}
+                      src={loc.card_thumbnail}
+                      alt={loc.card_name}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className={styles.cardImg}
@@ -51,19 +149,19 @@ export default function ActiveLocations({ excludeId }: ActiveLocationsProps) {
                   <div className={styles.cardOverlay} />
                   <div
                     className={styles.statusBadge}
-                    data-active={card.active}
-                    aria-label={card.active ? "აქტიური ახლა" : "დაკეტილია"}
+                    data-active={loc.card_active}
+                    aria-label={loc.card_active ? "აქტიური ახლა" : "დაკეტილია"}
                   >
                     <span className={styles.statusDot} />
                     <span className={styles.statusLabel}>
-                      {card.active ? "active now" : "დაკეტილია"}
+                      {loc.card_active ? "active now" : "დაკეტილია"}
                     </span>
                   </div>
-                </div>{" "}
+                </div>
                 <div className={styles.cardContent}>
                   <div className={styles.cardHeader}>
                     <h3 className={styles.cardTitle}>
-                      {card.name}
+                      {loc.card_name}
                       <span className={styles.pin} aria-hidden>
                         <svg
                           viewBox="0 0 24 24"
@@ -78,27 +176,29 @@ export default function ActiveLocations({ excludeId }: ActiveLocationsProps) {
                         </svg>
                       </span>
                     </h3>
-                    {card.region && (
-                      <span className={styles.cardRegion}>{card.region}</span>
+                    {loc.card_region && (
+                      <span className={styles.cardRegion}>
+                        {loc.card_region}
+                      </span>
                     )}
                   </div>
-                  <p className={styles.cardTagline}>{card.tagline}</p>
+                  <p className={styles.cardTagline}>{loc.card_tagline}</p>
 
                   <div className={styles.cardMeta}>
-                    {card.altitude && (
+                    {loc.card_altitude && (
                       <span className={styles.metaItem}>
                         <span className={styles.metaIcon} aria-hidden>
                           ⛰
                         </span>
-                        {card.altitude}მ
+                        {loc.card_altitude}მ
                       </span>
                     )}
                     <button
                       className={styles.bookBtn}
-                      data-active={card.active}
-                      aria-label="დაჯავშნე"
+                      data-active={loc.card_active}
+                      aria-label="დაჯავშნა"
                     >
-                      დაჯავშნე
+                      დაჯავშნა
                     </button>
                   </div>
                 </div>

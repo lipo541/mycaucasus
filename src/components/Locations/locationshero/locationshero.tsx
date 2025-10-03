@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocation } from "@/components/Locations/LocationContext";
 import { LOCATIONS } from "@/config/locations";
 import Image from "next/image";
 import styles from "./locationshero.module.css";
@@ -10,10 +11,22 @@ interface LocationsHeroProps {
 }
 
 export default function LocationsHero({ locationId }: LocationsHeroProps) {
-  // Find the location by ID, or default to first location
-  const location = locationId
-    ? LOCATIONS.locations.find((loc) => loc.id === locationId)
-    : LOCATIONS.locations[0];
+  // Try to get location from Context first (dynamic from database)
+  let contextLocation;
+  try {
+    const ctx = useLocation();
+    contextLocation = ctx.location;
+  } catch {
+    // No context provider, use static config
+    contextLocation = null;
+  }
+
+  // Fallback to static LOCATIONS config if no context
+  const location =
+    contextLocation ||
+    (locationId
+      ? LOCATIONS.locations.find((loc) => loc.id === locationId)
+      : LOCATIONS.locations[0]);
 
   if (!location) {
     return null; // No location found

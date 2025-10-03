@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocation } from "@/components/Locations/LocationContext";
 import { LOCATIONS } from "@/config/locations";
 import styles from "./FlyTypes.module.css";
 
@@ -8,9 +9,19 @@ interface FlyTypesProps {
 }
 
 export default function FlyTypes({ locationId = "gudauri" }: FlyTypesProps) {
+  // Try to get location from Context first
+  let contextLocation;
+  try {
+    const ctx = useLocation();
+    contextLocation = ctx.location;
+  } catch {
+    contextLocation = null;
+  }
+
   // Get location data
-  const location = LOCATIONS.locations.find((loc) => loc.id === locationId);
-  const flyTypes = location?.hero.flyTypes || [];
+  const location =
+    contextLocation || LOCATIONS.locations.find((loc) => loc.id === locationId);
+  const flyTypes = location?.flyTypes || location?.hero?.flyTypes || [];
 
   // If no fly types, don't render
   if (flyTypes.length === 0) {

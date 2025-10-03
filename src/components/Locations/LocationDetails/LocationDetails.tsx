@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocation } from "@/components/Locations/LocationContext";
 import { LOCATIONS } from "@/config/locations";
 import { useState } from "react";
 import styles from "./LocationDetails.module.css";
@@ -14,9 +15,19 @@ export default function LocationDetails({
   const [openSections, setOpenSections] = useState<number[]>([]);
   const [showTips, setShowTips] = useState(false);
 
+  // Try to get location from Context first
+  let contextLocation;
+  try {
+    const ctx = useLocation();
+    contextLocation = ctx.location;
+  } catch {
+    contextLocation = null;
+  }
+
   // Get location data
-  const location = LOCATIONS.locations.find((loc) => loc.id === locationId);
-  const info = location?.hero.locationInfo;
+  const location =
+    contextLocation || LOCATIONS.locations.find((loc) => loc.id === locationId);
+  const info = location?.info || location?.hero?.locationInfo;
 
   // If no location info, don't render
   if (!info) {
