@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       lang = DEFAULT_LANGUAGE;
     }
 
-    // Query: Get all locations with translations
+    // Query: Get all locations with translations (only published)
     const { data: locations, error } = await supabase
       .from("locations")
       .select(
@@ -62,10 +62,12 @@ export async function GET(request: NextRequest) {
         location_translations!inner (
           language_code,
           card_name,
-          card_tagline
+          card_tagline,
+          hero_headline
         )
       `
       )
+      .eq("is_published", true)
       .eq("location_translations.language_code", lang)
       .order("id", { ascending: true });
 
@@ -96,10 +98,12 @@ export async function GET(request: NextRequest) {
           location_translations!inner (
             language_code,
             card_name,
-            status_badge
+            card_tagline,
+            hero_headline
           )
         `
         )
+        .eq("is_published", true)
         .eq("location_translations.language_code", FALLBACK_LANGUAGE)
         .order("id", { ascending: true });
 
@@ -127,6 +131,9 @@ export async function GET(request: NextRequest) {
           cardThumbWebp: loc.hero_thumb_webp,
           statusBadge: loc.location_translations[0].card_tagline || "",
           status: loc.card_status as "active" | "coming_soon" | "inactive",
+          headline:
+            loc.location_translations[0].hero_headline ||
+            loc.location_translations[0].card_name,
         })),
         total: fallbackLocations.length,
       };
@@ -149,6 +156,9 @@ export async function GET(request: NextRequest) {
         cardThumbWebp: loc.hero_thumb_webp,
         statusBadge: loc.location_translations[0].card_tagline || "",
         status: loc.card_status as "active" | "coming_soon" | "inactive",
+        headline:
+          loc.location_translations[0].hero_headline ||
+          loc.location_translations[0].card_name,
       })),
       total: locations.length,
     };

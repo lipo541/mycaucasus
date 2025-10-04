@@ -199,6 +199,7 @@ export interface LocationListItem {
   cardThumbWebp: string;
   statusBadge: string;
   status: "active" | "coming_soon" | "inactive";
+  headline: string; // hero_headline for navigation display
 }
 
 // ===== Full Location Details (for /api/locations/[id]) =====
